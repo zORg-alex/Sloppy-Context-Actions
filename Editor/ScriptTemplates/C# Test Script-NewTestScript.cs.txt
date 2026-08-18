@@ -1,0 +1,11 @@
+using NUnit.Framework;
+
+#ROOTNAMESPACEBEGIN#
+public class #SCRIPTNAME#
+{
+    [Test]
+    public void Test()
+    {
+    }
+}
+#ROOTNAMESPACEEND#

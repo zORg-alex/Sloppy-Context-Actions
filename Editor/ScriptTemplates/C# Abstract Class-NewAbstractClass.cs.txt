@@ -1,0 +1,5 @@
+#ROOTNAMESPACEBEGIN#
+public abstract class #SCRIPTNAME#
+{
+}
+#ROOTNAMESPACEEND#
