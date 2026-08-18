@@ -30,7 +30,16 @@ namespace ContextActionsSlop.Editor
             switch (current.GetTypeForControl(controlId))
             {
                 case EventType.Repaint:
-                    style.Draw(rect, content, controlId, false, hovered);
+                    if (content.image == null)
+                    {
+                        style.Draw(rect, content, controlId, false, hovered);
+                    }
+                    else
+                    {
+                        GUIContent tooltipContent = new(string.Empty, content.tooltip);
+                        style.Draw(rect, tooltipContent, controlId, false, hovered);
+                        GUI.DrawTexture(rect, content.image, ScaleMode.ScaleToFit, true);
+                    }
                     break;
 
                 case EventType.MouseDown:
