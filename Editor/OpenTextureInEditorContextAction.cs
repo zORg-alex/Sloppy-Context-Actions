@@ -74,11 +74,6 @@ namespace ContextActionsSlop.Editor
             }
 
             if (!hasEditor) menu.AddDisabledItem(new GUIContent("No image editors configured"));
-            menu.AddSeparator(string.Empty);
-            menu.AddItem(
-                new GUIContent("Configure Image Editors…"),
-                false,
-                ImageEditorPreferences.OpenPreferences);
             menu.ShowAsContext();
         }
 
@@ -95,6 +90,11 @@ namespace ContextActionsSlop.Editor
 
             try
             {
+                bool isAseprite = Path.GetFileName(editor.executablePath)
+                    .Equals("aseprite.exe", StringComparison.OrdinalIgnoreCase);
+
+                if (isAseprite && AsepriteRunningInstance.TryOpen(absolutePath)) return;
+
                 Process.Start(new ProcessStartInfo
                 {
                     FileName = editor.executablePath,
