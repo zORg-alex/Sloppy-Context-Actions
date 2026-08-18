@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
@@ -15,7 +16,17 @@ namespace ContextActionsSlop.Editor
         public const float EdgePadding = 2f;
 
         private static readonly List<Registration> Registrations = new();
+        private static readonly List<Registration> TreeFolderRegistrations = new();
+        private static readonly Type ProjectBrowserType =
+            typeof(EditorWindow).Assembly.GetType("UnityEditor.ProjectBrowser");
+        private static readonly MethodInfo IsTwoColumnsMethod = ProjectBrowserType?.GetMethod(
+            "IsTwoColumns",
+            BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+        private static readonly FieldInfo ListAreaRectField = ProjectBrowserType?.GetField(
+            "m_ListAreaRect",
+            BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
         private static bool _sortRequired;
+        private static bool _treeSortRequired;
         private static EditorWindow _projectWindow;
         private static string _hoveredGuid;
 
@@ -45,6 +56,25 @@ namespace ContextActionsSlop.Editor
             RepaintProjectWindow();
         }
 
+        /// <summary>Registers an action shown only on hovered folders in the left Project tree.</summary>
+        public static void RegisterTreeFolder(
+            string id,
+            Action<ProjectContextItem> drawer,
+            int order = 0)
+        {
+            if (string.IsNullOrWhiteSpace(id))
+                throw new ArgumentException("A tree-folder action id is required.", nameof(id));
+            if (drawer == null) throw new ArgumentNullException(nameof(drawer));
+
+            int index = TreeFolderRegistrations.FindIndex(item => item.Id == id);
+            Registration registration = new(id, drawer, order);
+            if (index >= 0) TreeFolderRegistrations[index] = registration;
+            else TreeFolderRegistrations.Add(registration);
+
+            _treeSortRequired = true;
+            RepaintProjectWindow();
+        }
+
         public static void Unregister(string id)
         {
             int removed = Registrations.RemoveAll(item => item.Id == id);
@@ -53,7 +83,11 @@ namespace ContextActionsSlop.Editor
 
         private static void DrawProjectItem(string guid, Rect itemRect)
         {
-            if (Registrations.Count == 0) return;
+            if (Registrations.Count == 0 && TreeFolderRegistrations.Count == 0) return;
+
+            EditorWindow hoveredWindow = EditorWindow.mouseOverWindow;
+            if (hoveredWindow != null && hoveredWindow.GetType() == ProjectBrowserType)
+                _projectWindow = hoveredWindow;
 
             ProjectContextItem item = new(guid, itemRect);
             if (!item.IsHovered) return;
@@ -81,6 +115,36 @@ namespace ContextActionsSlop.Editor
                     Debug.LogException(exception);
                 }
             }
+
+            if (!item.IsFolder || !IsLeftTreeItem(itemRect)) return;
+
+            if (_treeSortRequired)
+            {
+                TreeFolderRegistrations.Sort((left, right) => left.Order.CompareTo(right.Order));
+                _treeSortRequired = false;
+            }
+
+            foreach (Registration registration in TreeFolderRegistrations)
+            {
+                try
+                {
+                    registration.Drawer(item);
+                }
+                catch (Exception exception)
+                {
+                    Debug.LogException(exception);
+                }
+            }
+        }
+
+        private static bool IsLeftTreeItem(Rect itemRect)
+        {
+            if (_projectWindow == null || IsTwoColumnsMethod == null || ListAreaRectField == null)
+                return false;
+            if (!(bool)IsTwoColumnsMethod.Invoke(_projectWindow, null)) return false;
+
+            Rect listAreaRect = (Rect)ListAreaRectField.GetValue(_projectWindow);
+            return itemRect.xMax <= listAreaRect.xMin + 1f;
         }
 
         private static void TrackProjectWindow()

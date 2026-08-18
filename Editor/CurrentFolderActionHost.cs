@@ -121,10 +121,13 @@ namespace ContextActionsSlop.Editor
             float size = ContextActionPreferences.ButtonSize;
             float width = visibleCount * size + (visibleCount - 1) * ProjectContextActionHost.ButtonSpacing;
             overlay.Container.style.display = DisplayStyle.Flex;
-            overlay.Container.style.left = listAreaRect.xMin + ProjectContextActionHost.EdgePadding;
-            overlay.Container.style.top = listAreaRect.yMin + ProjectContextActionHost.EdgePadding;
+            float breadcrumbTail = CalculateBreadcrumbTail(listAreaRect.xMin, path);
+            overlay.Container.style.left = Mathf.Min(
+                breadcrumbTail,
+                listAreaRect.xMax - width - ProjectContextActionHost.EdgePadding);
+            overlay.Container.style.top = listAreaRect.yMin - size;
             overlay.Container.style.width = width;
-            overlay.Container.style.height = Mathf.Min(size, listAreaRect.height);
+            overlay.Container.style.height = size;
         }
 
         private static void DrawOverlay(EditorWindow window)
@@ -176,6 +179,19 @@ namespace ContextActionsSlop.Editor
         private static string GetActiveFolderPath(EditorWindow window)
         {
             return GetActiveFolderPathMethod?.Invoke(window, null) as string;
+        }
+
+        private static float CalculateBreadcrumbTail(float listAreaLeft, string path)
+        {
+            float tail = listAreaLeft + 4f;
+            string[] segments = path.Split('/');
+            for (int index = 0; index < segments.Length; index++)
+            {
+                float labelWidth = EditorStyles.label.CalcSize(new GUIContent(segments[index])).x;
+                tail += labelWidth + (index == 0 ? 12f : 18f);
+            }
+
+            return tail + ProjectContextActionHost.EdgePadding;
         }
 
         private static void SortIfRequired()

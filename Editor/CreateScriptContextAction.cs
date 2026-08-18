@@ -38,6 +38,7 @@ namespace ContextActionsSlop.Editor
                     path.StartsWith("Assets", StringComparison.Ordinal) &&
                     path.IndexOf("Scripts", StringComparison.OrdinalIgnoreCase) >= 0,
                 order: -90);
+            ProjectContextActionHost.RegisterTreeFolder(RegistrationId, Draw, order: -90);
         }
 
         private static void Draw(ProjectContextItem item)

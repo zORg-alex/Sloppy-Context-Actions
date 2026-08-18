@@ -35,6 +35,7 @@ namespace ContextActionsSlop.Editor
                 Draw,
                 path => !string.IsNullOrEmpty(path) && path.StartsWith("Assets"),
                 order: -100);
+            ProjectContextActionHost.RegisterTreeFolder(RegistrationId, Draw, order: -100);
         }
 
         private static void Draw(ProjectContextItem item)
