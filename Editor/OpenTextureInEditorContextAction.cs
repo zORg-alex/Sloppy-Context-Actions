@@ -27,7 +27,6 @@ namespace ContextActionsSlop.Editor
             Texture2D icon = ContextActionIcons.OpenInImageEditor;
             GUIContent content = new()
             {
-                text = icon == null ? "↗" : string.Empty,
                 image = icon,
                 tooltip = "Open texture in image editor\nRight-click to choose an editor"
             };

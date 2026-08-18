@@ -11,7 +11,7 @@ namespace ContextActionsSlop.Editor
     [InitializeOnLoad]
     public static class ProjectContextActionHost
     {
-        public const float DefaultButtonSize = 18f;
+        public const float DefaultButtonSize = 32f;
         public const float ButtonSpacing = 2f;
         public const float EdgePadding = 2f;
 

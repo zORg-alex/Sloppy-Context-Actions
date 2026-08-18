@@ -36,9 +36,14 @@ namespace ContextActionsSlop.Editor
                     }
                     else
                     {
+                        // Image actions are chrome-free. Tint communicates hover and press state.
                         GUIContent tooltipContent = new(string.Empty, content.tooltip);
-                        style.Draw(rect, tooltipContent, controlId, false, hovered);
+                        GUIStyle.none.Draw(rect, tooltipContent, controlId, false, hovered);
+
+                        Color previousColor = GUI.color;
+                        GUI.color *= GetImageTint(hovered, ownsMouse);
                         GUI.DrawTexture(rect, content.image, ScaleMode.ScaleToFit, true);
+                        GUI.color = previousColor;
                     }
                     break;
 
@@ -68,6 +73,13 @@ namespace ContextActionsSlop.Editor
             }
 
             return ProjectContextButtonClick.None;
+        }
+
+        private static Color GetImageTint(bool hovered, bool pressed)
+        {
+            if (pressed && hovered) return new Color(0.72f, 0.72f, 0.72f, 1f);
+            if (hovered) return Color.white;
+            return new Color(1f, 1f, 1f, 0.78f);
         }
     }
 }
