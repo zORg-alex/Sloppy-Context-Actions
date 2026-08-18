@@ -38,8 +38,8 @@ namespace ContextActionsSlop.Editor
             if (!item.IsFolder || !item.Path.StartsWith("Assets")) return;
 
             Rect buttonRect = item.ReserveButtonRect();
-            GUIContent content = EditorGUIUtility.TrTextContent(
-                "+",
+            GUIContent content = new(
+                ContextActionIcons.AddFolder,
                 "Create subfolder\nRight-click for preset names");
 
             ProjectContextButtonClick click = ProjectContextButton.Draw(buttonRect, content);
