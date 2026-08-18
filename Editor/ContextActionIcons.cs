@@ -12,14 +12,17 @@ namespace ContextActionsSlop.Editor
 
         private static Texture2D _addFolder;
         private static Texture2D _openInImageEditor;
+        private static bool _addFolderLoaded;
+        private static bool _openInImageEditorLoaded;
 
         public static Texture2D AddFolder
         {
             get
             {
-                if (_addFolder == null)
+                if (!_addFolderLoaded)
                 {
-                    _addFolder = LoadTexture(AddFolderPath);
+                    _addFolderLoaded = true;
+                    _addFolder = AssetDatabase.LoadAssetAtPath<Texture2D>(AddFolderPath);
                 }
 
                 return _addFolder;
@@ -30,22 +33,15 @@ namespace ContextActionsSlop.Editor
         {
             get
             {
-                if (_openInImageEditor == null)
+                if (!_openInImageEditorLoaded)
                 {
-                    _openInImageEditor = LoadTexture(OpenInImageEditorPath);
+                    _openInImageEditorLoaded = true;
+                    _openInImageEditor =
+                        AssetDatabase.LoadAssetAtPath<Texture2D>(OpenInImageEditorPath);
                 }
 
                 return _openInImageEditor;
             }
-        }
-
-        private static Texture2D LoadTexture(string path)
-        {
-            Texture2D texture = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
-            if (texture != null) return texture;
-
-            Sprite sprite = AssetDatabase.LoadAssetAtPath<Sprite>(path);
-            return sprite != null ? sprite.texture : null;
         }
     }
 }
