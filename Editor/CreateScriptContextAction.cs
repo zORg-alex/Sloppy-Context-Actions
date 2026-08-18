@@ -30,7 +30,14 @@ namespace ContextActionsSlop.Editor
 
         static CreateScriptContextAction()
         {
-            ProjectContextActionHost.Register(RegistrationId, Draw, order: -90);
+            CurrentFolderActionHost.Register(
+                RegistrationId,
+                Draw,
+                path =>
+                    !string.IsNullOrEmpty(path) &&
+                    path.StartsWith("Assets", StringComparison.Ordinal) &&
+                    path.IndexOf("Scripts", StringComparison.OrdinalIgnoreCase) >= 0,
+                order: -90);
         }
 
         private static void Draw(ProjectContextItem item)

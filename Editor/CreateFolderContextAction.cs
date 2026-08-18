@@ -30,7 +30,11 @@ namespace ContextActionsSlop.Editor
 
         static CreateFolderContextAction()
         {
-            ProjectContextActionHost.Register(RegistrationId, Draw, order: -100);
+            CurrentFolderActionHost.Register(
+                RegistrationId,
+                Draw,
+                path => !string.IsNullOrEmpty(path) && path.StartsWith("Assets"),
+                order: -100);
         }
 
         private static void Draw(ProjectContextItem item)

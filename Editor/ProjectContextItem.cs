@@ -9,6 +9,8 @@ namespace ContextActionsSlop.Editor
         private Object _asset;
         private bool _assetLoaded;
         private float _rightEdge;
+        private float _leftEdge;
+        private readonly bool _layoutFromLeft;
 
         public string Guid { get; }
         public string Path { get; }
@@ -30,7 +32,7 @@ namespace ContextActionsSlop.Editor
             }
         }
 
-        internal ProjectContextItem(string guid, Rect itemRect)
+        internal ProjectContextItem(string guid, Rect itemRect, bool layoutFromLeft = false)
         {
             Guid = guid;
             Path = AssetDatabase.GUIDToAssetPath(guid);
@@ -38,6 +40,8 @@ namespace ContextActionsSlop.Editor
             IsHovered = itemRect.Contains(Event.current.mousePosition);
             IsFolder = !string.IsNullOrEmpty(Path) && AssetDatabase.IsValidFolder(Path);
             _rightEdge = itemRect.xMax - ProjectContextActionHost.EdgePadding;
+            _leftEdge = itemRect.xMin;
+            _layoutFromLeft = layoutFromLeft;
         }
 
         /// <summary>
@@ -48,6 +52,14 @@ namespace ContextActionsSlop.Editor
             float buttonSize = ContextActionPreferences.ButtonSize;
             if (width < 0f) width = buttonSize;
             float height = Mathf.Min(buttonSize, ItemRect.height);
+
+            if (_layoutFromLeft)
+            {
+                Rect leftResult = new Rect(_leftEdge, ItemRect.yMin, width, height);
+                _leftEdge += width + ProjectContextActionHost.ButtonSpacing;
+                return leftResult;
+            }
+
             _rightEdge -= width;
 
             Rect result = new Rect(

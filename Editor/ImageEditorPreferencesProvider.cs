@@ -34,6 +34,7 @@ namespace ContextActionsSlop.Editor
             {
                 ContextActionPreferences.ButtonSize = buttonSize;
                 ProjectContextActionHost.RepaintProjectWindow();
+                CurrentFolderActionHost.Repaint();
             }
 
             EditorGUILayout.Space();
