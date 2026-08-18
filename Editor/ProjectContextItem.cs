@@ -43,9 +43,11 @@ namespace ContextActionsSlop.Editor
         /// <summary>
         /// Reserves a top-right slot. Calling this repeatedly lays buttons out from right to left.
         /// </summary>
-        public Rect ReserveButtonRect(float width = ProjectContextActionHost.DefaultButtonSize)
+        public Rect ReserveButtonRect(float width = -1f)
         {
-            float height = Mathf.Min(ProjectContextActionHost.DefaultButtonSize, ItemRect.height);
+            float buttonSize = ContextActionPreferences.ButtonSize;
+            if (width < 0f) width = buttonSize;
+            float height = Mathf.Min(buttonSize, ItemRect.height);
             _rightEdge -= width;
 
             Rect result = new Rect(

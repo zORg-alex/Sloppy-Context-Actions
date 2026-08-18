@@ -13,12 +13,30 @@ namespace ContextActionsSlop.Editor
             {
                 label = "Context Actions Slop",
                 guiHandler = _ => DrawPreferences(),
-                keywords = new[] { "image", "texture", "editor", "Photoshop", "Krita", "Aseprite" }
+                keywords = new[]
+                {
+                    "button", "size", "appearance", "image", "texture", "editor",
+                    "Photoshop", "Krita", "Aseprite"
+                }
             };
         }
 
         private static void DrawPreferences()
         {
+            EditorGUILayout.LabelField("Appearance", EditorStyles.boldLabel);
+            EditorGUI.BeginChangeCheck();
+            int buttonSize = EditorGUILayout.IntSlider(
+                "Button size",
+                ContextActionPreferences.ButtonSize,
+                ContextActionPreferences.MinimumButtonSize,
+                ContextActionPreferences.MaximumButtonSize);
+            if (EditorGUI.EndChangeCheck())
+            {
+                ContextActionPreferences.ButtonSize = buttonSize;
+                ProjectContextActionHost.RepaintProjectWindow();
+            }
+
+            EditorGUILayout.Space();
             EditorGUILayout.LabelField("Image Editors", EditorStyles.boldLabel);
             EditorGUILayout.HelpBox(
                 "The first valid editor is used by left-click. Right-clicking the texture action shows the full list.",

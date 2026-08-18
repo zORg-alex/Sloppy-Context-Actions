@@ -11,7 +11,6 @@ namespace ContextActionsSlop.Editor
     [InitializeOnLoad]
     public static class ProjectContextActionHost
     {
-        public const float DefaultButtonSize = 32f;
         public const float ButtonSpacing = 2f;
         public const float EdgePadding = 2f;
 
@@ -93,9 +92,18 @@ namespace ContextActionsSlop.Editor
             if (!_projectWindow.wantsMouseMove) _projectWindow.wantsMouseMove = true;
         }
 
-        private static void RepaintProjectWindow()
+        internal static void RepaintProjectWindow()
         {
-            _projectWindow?.Repaint();
+            if (_projectWindow != null)
+            {
+                _projectWindow.Repaint();
+                return;
+            }
+
+            foreach (EditorWindow window in Resources.FindObjectsOfTypeAll<EditorWindow>())
+            {
+                if (window.GetType().Name == "ProjectBrowser") window.Repaint();
+            }
         }
 
         private readonly struct Registration
