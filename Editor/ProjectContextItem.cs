@@ -3,6 +3,13 @@ using UnityEngine;
 
 namespace SloppyContextActions.Editor
 {
+    public enum ProjectContextSurface
+    {
+        AssetList,
+        TreeFolder,
+        CurrentFolder
+    }
+
     /// <summary>Information and layout state for one item drawn in the Project window.</summary>
     public sealed class ProjectContextItem
     {
@@ -17,6 +24,7 @@ namespace SloppyContextActions.Editor
         public Rect ItemRect { get; }
         public bool IsHovered { get; }
         public bool IsFolder { get; }
+        public ProjectContextSurface Surface { get; }
 
         public Object Asset
         {
@@ -32,13 +40,18 @@ namespace SloppyContextActions.Editor
             }
         }
 
-        internal ProjectContextItem(string guid, Rect itemRect, bool layoutFromLeft = false)
+        internal ProjectContextItem(
+            string guid,
+            Rect itemRect,
+            bool layoutFromLeft = false,
+            ProjectContextSurface surface = ProjectContextSurface.AssetList)
         {
             Guid = guid;
             Path = AssetDatabase.GUIDToAssetPath(guid);
             ItemRect = itemRect;
             IsHovered = itemRect.Contains(Event.current.mousePosition);
             IsFolder = !string.IsNullOrEmpty(Path) && AssetDatabase.IsValidFolder(Path);
+            Surface = surface;
             _rightEdge = itemRect.xMax - ProjectContextActionHost.EdgePadding;
             _leftEdge = itemRect.xMin;
             _layoutFromLeft = layoutFromLeft;

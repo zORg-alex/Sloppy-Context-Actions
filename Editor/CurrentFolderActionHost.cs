@@ -147,7 +147,11 @@ namespace SloppyContextActions.Editor
             float size = ContextActionPreferences.ButtonSize;
             float width = visible.Count * size + (visible.Count - 1) * ProjectContextActionHost.ButtonSpacing;
             string guid = AssetDatabase.AssetPathToGUID(path);
-            ProjectContextItem item = new(guid, new Rect(0f, 0f, width, size), layoutFromLeft: true);
+            ProjectContextItem item = new(
+                guid,
+                new Rect(0f, 0f, width, size),
+                layoutFromLeft: true,
+                surface: ProjectContextSurface.CurrentFolder);
 
             foreach (Registration registration in visible)
             {

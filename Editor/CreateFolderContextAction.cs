@@ -33,14 +33,14 @@ namespace SloppyContextActions.Editor
             CurrentFolderActionHost.Register(
                 RegistrationId,
                 Draw,
-                path => !string.IsNullOrEmpty(path) && path.StartsWith("Assets"),
+                CanCreateIn,
                 order: -100);
             ProjectContextActionHost.RegisterTreeFolder(RegistrationId, Draw, order: -100);
         }
 
         private static void Draw(ProjectContextItem item)
         {
-            if (!item.IsFolder || !item.Path.StartsWith("Assets")) return;
+            if (!item.IsFolder || !CanCreateIn(item.Path)) return;
 
             Rect buttonRect = item.ReserveButtonRect();
             GUIContent content = new()
@@ -52,6 +52,12 @@ namespace SloppyContextActions.Editor
             ProjectContextButtonClick click = ProjectContextButton.Draw(buttonRect, content);
             if (click == ProjectContextButtonClick.Left) CreateRenameableFolder(item);
             else if (click == ProjectContextButtonClick.Right) ShowPresetMenu(item);
+        }
+
+        internal static bool CanCreateIn(string path)
+        {
+            return string.Equals(path, "Assets", System.StringComparison.Ordinal) ||
+                   path?.StartsWith("Assets/", System.StringComparison.Ordinal) == true;
         }
 
         private static void CreateRenameableFolder(ProjectContextItem item)
@@ -78,6 +84,8 @@ namespace SloppyContextActions.Editor
                 new GUIContent("New Folder"),
                 false,
                 () => CreateNamedFolder(item.Path, "New Folder"));
+            menu.AddSeparator(string.Empty);
+            AssetPathContextAction.AppendMenu(menu, item.Path);
             menu.ShowAsContext();
         }
 

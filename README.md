@@ -13,13 +13,14 @@ Only Unity 6.5 and newer has been tested so far. Some features rely on Unity Edi
 - Unity's installed shader-template selection from folder and shader contexts.
 - Texture opening in configurable external image editors.
 - Audio preview play and stop actions.
+- Reveal assets in the system file browser and copy Unity, absolute, or parent paths.
 - Project tree actions plus current-folder actions beside the Project breadcrumb area.
 
 Left-click performs the primary action. Right-click opens the applicable choices. Configure button size and external image editors in **Edit > Preferences > Sloppy Context Actions**.
 
 ## Installation and customization
 
-Keep the complete `Sloppy Context Actions` folder under `Assets/Plugins`; the implementation uses stable asset paths within that folder. Custom script templates can be added under `Editor/ScriptTemplates`, following Unity's `Menu Name-DefaultFileName.extension.txt` naming convention.
+Place the complete `Sloppy Context Actions` folder anywhere under `Assets`. The implementation locates its resources by Unity GUID, so moving the folder does not require source changes. Keep Unity's `.meta` files when copying it. Custom script templates can be added under `Editor/ScriptTemplates`, following Unity's `Menu Name-DefaultFileName.extension.txt` naming convention.
 
 The source is intentionally included. Treat it as project-local tooling: review it, delete actions you do not need, and adapt it to your project's conventions.
 
@@ -27,4 +28,4 @@ The source is intentionally included. Treat it as project-local tooling: review 
 
 The generated implementation is distributed under the license in [LICENSE.md](LICENSE.md). Third-party icon credits and licenses are listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
-The deprecated Infinity Code asset used as a behavioral reference is not included. Its redistribution rights were not established. Do not add or distribute its source unless you have independently confirmed that its license permits doing so. If any implementation was copied verbatim from that asset during local development, rewrite it independently or obtain permission before distributing this plugin. This is a practical project warning, not legal advice.
+Sloppy Context Actions is inspired by [**Project Context Actions**](https://assetstore.unity.com/packages/tools/utilities/project-context-actions-267429) by Infinity Code. The asset's features and interactions served as the reference for recreating the idea for Unity 6 and extending it with this project's additional actions and preferences. Credit belongs to Infinity Code for the original concept and prior work.

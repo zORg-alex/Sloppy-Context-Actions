@@ -7,26 +7,22 @@ namespace SloppyContextActions.Editor
 {
     internal static class ContextActionIcons
     {
-        private const string AddFolderPath =
-            "Assets/Plugins/Sloppy Context Actions/Icons/Add-Folder.svg";
-        private const string OpenInImageEditorPath =
-            "Assets/Plugins/Sloppy Context Actions/Icons/Open-Image-Editor.svg";
-        private const string AddScriptPath =
-            "Assets/Plugins/Sloppy Context Actions/Icons/Add-Script.svg";
-        private const string MaterialPath =
-            "Assets/Plugins/Sloppy Context Actions/Icons/Material.svg";
-        private const string ShaderPath =
-            "Assets/Plugins/Sloppy Context Actions/Icons/Shader.svg";
-        private const string AudioPlayPath =
-            "Assets/Plugins/Sloppy Context Actions/Icons/Audio-Play.svg";
-        private const string AudioStopPath =
-            "Assets/Plugins/Sloppy Context Actions/Icons/Audio-Stop.svg";
+        private static string AddFolderPath => Path("Icons/Add-Folder.svg");
+        private static string OpenInImageEditorPath => Path("Icons/Open-Image-Editor.svg");
+        private static string OpenInExplorerPath => Path("Icons/Open-In-Explorer.svg");
+        private static string AddScriptPath => Path("Icons/Add-Script.svg");
+        private static string MaterialPath => Path("Icons/Material.svg");
+        private static string ShaderPath => Path("Icons/Shader.svg");
+        private static string AudioPlayPath => Path("Icons/Audio-Play.svg");
+        private static string AudioStopPath => Path("Icons/Audio-Stop.svg");
 
         private static Texture2D _addFolder;
         private static Texture2D _openInImageEditor;
+        private static Texture2D _openInExplorer;
         private static Texture2D _addScript;
         private static bool _addFolderLoaded;
         private static bool _openInImageEditorLoaded;
+        private static bool _openInExplorerLoaded;
         private static bool _addScriptLoaded;
         private static Texture2D _material;
         private static Texture2D _shader;
@@ -84,6 +80,20 @@ namespace SloppyContextActions.Editor
                 }
 
                 return _openInImageEditor;
+            }
+        }
+
+        public static Texture2D OpenInExplorer
+        {
+            get
+            {
+                Texture2D custom = LoadOnce(
+                    ref _openInExplorer,
+                    ref _openInExplorerLoaded,
+                    OpenInExplorerPath);
+                return custom != null
+                    ? custom
+                    : EditorGUIUtility.IconContent("Folder Icon").image as Texture2D;
             }
         }
 
@@ -150,10 +160,16 @@ namespace SloppyContextActions.Editor
             return false;
         }
 
+        private static string Path(string relativePath)
+        {
+            return SloppyContextActionsLocation.GetAssetPath(relativePath);
+        }
+
         private static void ClearCache()
         {
             _addFolder = null;
             _openInImageEditor = null;
+            _openInExplorer = null;
             _addScript = null;
             _material = null;
             _shader = null;
@@ -161,6 +177,7 @@ namespace SloppyContextActions.Editor
             _audioStop = null;
             _addFolderLoaded = false;
             _openInImageEditorLoaded = false;
+            _openInExplorerLoaded = false;
             _addScriptLoaded = false;
             _materialLoaded = false;
             _shaderLoaded = false;

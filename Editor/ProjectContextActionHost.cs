@@ -92,7 +92,13 @@ namespace SloppyContextActions.Editor
             if (hoveredWindow != null && hoveredWindow.GetType() == ProjectBrowserType)
                 _projectWindow = hoveredWindow;
 
-            ProjectContextItem item = new(guid, itemRect);
+            bool isTreeFolder = IsLeftTreeItem(itemRect);
+            ProjectContextItem item = new(
+                guid,
+                itemRect,
+                surface: isTreeFolder
+                    ? ProjectContextSurface.TreeFolder
+                    : ProjectContextSurface.AssetList);
             if (!item.IsHovered) return;
 
             if (_hoveredGuid != guid)
@@ -119,7 +125,7 @@ namespace SloppyContextActions.Editor
                 }
             }
 
-            if (!item.IsFolder || !IsLeftTreeItem(itemRect)) return;
+            if (!item.IsFolder || !isTreeFolder) return;
 
             if (_treeSortRequired)
             {

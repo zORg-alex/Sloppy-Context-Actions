@@ -10,8 +10,8 @@ namespace SloppyContextActions.Editor
     internal static class CreateScriptContextAction
     {
         private const string RegistrationId = "sloppy-context-actions.create-script";
-        private const string TemplateRoot =
-            "Assets/Plugins/Sloppy Context Actions/Editor/ScriptTemplates/";
+        private static string TemplateRoot =>
+            SloppyContextActionsLocation.GetAssetPath("Editor/ScriptTemplates/");
 
         private static readonly ScriptTemplate[] Templates =
         {
