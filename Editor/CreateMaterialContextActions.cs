@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -12,6 +13,8 @@ namespace ContextActionsSlop.Editor
             "context-actions-slop.create-material-in-folder";
         private const string TextureRegistrationId =
             "context-actions-slop.create-material-from-texture";
+        private const string ShaderRegistrationId =
+            "context-actions-slop.create-material-from-shader";
 
         static CreateMaterialContextActions()
         {
@@ -27,6 +30,10 @@ namespace ContextActionsSlop.Editor
             ProjectContextActionHost.Register(
                 TextureRegistrationId,
                 DrawTextureButton,
+                order: 60);
+            ProjectContextActionHost.Register(
+                ShaderRegistrationId,
+                DrawShaderButton,
                 order: 60);
         }
 
@@ -49,7 +56,7 @@ namespace ContextActionsSlop.Editor
             };
 
             if (ProjectContextButton.Draw(buttonRect, content) == ProjectContextButtonClick.Left)
-                CreateMaterial(item.Asset, null, "New Material.mat");
+                CreateMaterial(item.Asset, null, null, "New Material.mat");
         }
 
         private static void DrawTextureButton(ProjectContextItem item)
@@ -64,15 +71,34 @@ namespace ContextActionsSlop.Editor
             };
 
             if (ProjectContextButton.Draw(buttonRect, content) == ProjectContextButtonClick.Left)
-                CreateMaterial(texture, texture, texture.name + ".mat");
+                CreateMaterial(texture, texture, null, texture.name + ".mat");
+        }
+
+        private static void DrawShaderButton(ProjectContextItem item)
+        {
+            if (item.IsFolder || item.Asset is not Shader shader) return;
+
+            Rect buttonRect = item.ReserveButtonRect();
+            GUIContent content = new()
+            {
+                image = ContextActionIcons.Material,
+                tooltip = "Create Material from Shader"
+            };
+
+            if (ProjectContextButton.Draw(buttonRect, content) != ProjectContextButtonClick.Left)
+                return;
+
+            string shaderFileName = Path.GetFileNameWithoutExtension(item.Path);
+            CreateMaterial(shader, null, shader, shaderFileName + ".mat");
         }
 
         private static void CreateMaterial(
             UnityEngine.Object destination,
             Texture texture,
+            Shader selectedShader,
             string defaultName)
         {
-            Shader shader = FindDefaultShader();
+            Shader shader = selectedShader != null ? selectedShader : FindDefaultShader();
             if (shader == null)
             {
                 Debug.LogError(
