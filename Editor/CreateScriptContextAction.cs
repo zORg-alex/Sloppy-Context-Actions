@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
@@ -102,8 +104,44 @@ namespace ContextActionsSlop.Editor
             }
 
             AppendPackageTemplates(menu, item);
+            AppendUserTemplates(menu, item);
 
             menu.ShowAsContext();
+        }
+
+        private static void AppendUserTemplates(GenericMenu menu, ProjectContextItem item)
+        {
+            string[] guids = AssetDatabase.FindAssets("t:TextAsset", new[] { "Assets" });
+            List<string> paths = new();
+            foreach (string guid in guids)
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                if (!path.EndsWith(".cs.txt", StringComparison.OrdinalIgnoreCase)) continue;
+                if (path.StartsWith(TemplateRoot, StringComparison.OrdinalIgnoreCase)) continue;
+                paths.Add(path);
+            }
+
+            if (paths.Count == 0) return;
+            paths.Sort(StringComparer.OrdinalIgnoreCase);
+            menu.AddSeparator(string.Empty);
+
+            foreach (string path in paths)
+            {
+                string capturedPath = path;
+                string fileName = Path.GetFileNameWithoutExtension(
+                    Path.GetFileNameWithoutExtension(path));
+                menu.AddItem(
+                    new GUIContent("User Templates/" + fileName),
+                    false,
+                    () => CreateUserTemplate(item, capturedPath));
+            }
+        }
+
+        private static void CreateUserTemplate(ProjectContextItem item, string templatePath)
+        {
+            Selection.activeObject = item.Asset;
+            string defaultName = Path.GetFileNameWithoutExtension(templatePath);
+            ProjectWindowUtil.CreateScriptAssetFromTemplateFile(templatePath, defaultName);
         }
 
         private static void AppendPackageTemplates(GenericMenu menu, ProjectContextItem item)
