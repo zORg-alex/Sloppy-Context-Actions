@@ -1,0 +1,10 @@
+using Unity.Jobs;
+
+#ROOTNAMESPACEBEGIN#
+public struct #SCRIPTNAME# : IJob
+{
+    public void Execute()
+    {
+    }
+}
+#ROOTNAMESPACEEND#

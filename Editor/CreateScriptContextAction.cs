@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
@@ -30,6 +31,21 @@ namespace ContextActionsSlop.Editor
             new(string.Empty, string.Empty, string.Empty),
             new("Assembly Definition", "Assembly Definition-NewAssembly.asmdef.txt", "NewAssembly.asmdef"),
             new("Assembly Definition Reference", "Assembly Definition Reference-NewAssemblyReference.asmref.txt", "NewAssemblyReference.asmref")
+        };
+
+        private static readonly PackageTemplate[] PackageTemplates =
+        {
+            new("Job System/IJob", "Jobs IJob-NewJob.cs.txt", "NewJob.cs", "Unity.Jobs.IJob", "Jobs IJob Burst-NewJob.cs.txt"),
+            new("Job System/IJobParallelFor", "Jobs IJobParallelFor-NewJob.cs.txt", "NewJob.cs", "Unity.Jobs.IJobParallelFor", "Jobs IJobParallelFor Burst-NewJob.cs.txt"),
+            new("Job System/IJobParallelForTransform", "Jobs IJobParallelForTransform-NewJob.cs.txt", "NewJob.cs", "UnityEngine.Jobs.IJobParallelForTransform", "Jobs IJobParallelForTransform Burst-NewJob.cs.txt"),
+            new("Job System/IJobFor", "Jobs IJobFor-NewJob.cs.txt", "NewJob.cs", "Unity.Jobs.IJobFor", "Jobs IJobFor Burst-NewJob.cs.txt"),
+            new("Entities/IComponentData", "Entities IComponentData-NewComponentData.cs.txt", "NewComponentData.cs", "Unity.Entities.IComponentData"),
+            new("Entities/IJobEntity", "Entities IJobEntity-NewJob.cs.txt", "NewJob.cs", "Unity.Entities.IJobEntity"),
+            new("Entities/ISystem", "Entities ISystem-NewSystem.cs.txt", "NewSystem.cs", "Unity.Entities.ISystem"),
+            new("Entities/Baker", "Entities Baker-NewAuthoring.cs.txt", "NewAuthoring.cs", "Unity.Entities.Baker`1"),
+            new("Entities/SystemBase", "Entities SystemBase-NewSystem.cs.txt", "NewSystem.cs", "Unity.Entities.SystemBase"),
+            new("Zenject/Mono Installer", "Zenject MonoInstaller-NewMonoInstaller.cs.txt", "NewMonoInstaller.cs", "Zenject.MonoInstaller"),
+            new("Zenject/ScriptableObject Installer", "Zenject ScriptableObjectInstaller-NewScriptableObjectInstaller.cs.txt", "NewScriptableObjectInstaller.cs", "Zenject.ScriptableObjectInstaller")
         };
 
         static CreateScriptContextAction()
@@ -87,7 +103,47 @@ namespace ContextActionsSlop.Editor
                     () => Create(item, capturedTemplate));
             }
 
+            AppendPackageTemplates(menu, item);
+
             menu.ShowAsContext();
+        }
+
+        private static void AppendPackageTemplates(GenericMenu menu, ProjectContextItem item)
+        {
+            bool separatorAdded = false;
+            bool hasBurst = HasType("Unity.Burst.BurstCompileAttribute");
+
+            foreach (PackageTemplate template in PackageTemplates)
+            {
+                if (!HasType(template.RequiredTypeName)) continue;
+                if (!separatorAdded)
+                {
+                    menu.AddSeparator(string.Empty);
+                    separatorAdded = true;
+                }
+
+                string fileName = hasBurst && !string.IsNullOrEmpty(template.BurstFileName)
+                    ? template.BurstFileName
+                    : template.FileName;
+                ScriptTemplate capturedTemplate = new(
+                    template.Label,
+                    fileName,
+                    template.DefaultName);
+                menu.AddItem(
+                    new GUIContent(capturedTemplate.Label),
+                    false,
+                    () => Create(item, capturedTemplate));
+            }
+        }
+
+        private static bool HasType(string fullName)
+        {
+            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                if (assembly.GetType(fullName, throwOnError: false) != null) return true;
+            }
+
+            return false;
         }
 
         private static bool IsEditorFolder(string path)
@@ -125,6 +181,29 @@ namespace ContextActionsSlop.Editor
                 FileName = fileName;
                 DefaultName = defaultName;
                 RequiresEditorFolder = requiresEditorFolder;
+            }
+        }
+
+        private readonly struct PackageTemplate
+        {
+            public string Label { get; }
+            public string FileName { get; }
+            public string DefaultName { get; }
+            public string RequiredTypeName { get; }
+            public string BurstFileName { get; }
+
+            public PackageTemplate(
+                string label,
+                string fileName,
+                string defaultName,
+                string requiredTypeName,
+                string burstFileName = null)
+            {
+                Label = label;
+                FileName = fileName;
+                DefaultName = defaultName;
+                RequiredTypeName = requiredTypeName;
+                BurstFileName = burstFileName;
             }
         }
     }

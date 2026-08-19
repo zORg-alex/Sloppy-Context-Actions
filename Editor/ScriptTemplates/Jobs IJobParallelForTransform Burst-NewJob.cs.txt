@@ -1,0 +1,12 @@
+using Unity.Burst;
+using UnityEngine.Jobs;
+
+#ROOTNAMESPACEBEGIN#
+[BurstCompile]
+public struct #SCRIPTNAME# : IJobParallelForTransform
+{
+    public void Execute(int index, TransformAccess transform)
+    {
+    }
+}
+#ROOTNAMESPACEEND#

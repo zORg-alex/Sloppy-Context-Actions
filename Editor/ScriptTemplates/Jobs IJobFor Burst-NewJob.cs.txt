@@ -1,0 +1,12 @@
+using Unity.Burst;
+using Unity.Jobs;
+
+#ROOTNAMESPACEBEGIN#
+[BurstCompile]
+public struct #SCRIPTNAME# : IJobFor
+{
+    public void Execute(int index)
+    {
+    }
+}
+#ROOTNAMESPACEEND#
