@@ -14,6 +14,7 @@ namespace ContextActionsSlop.Editor
     {
         public const float ButtonSpacing = 2f;
         public const float EdgePadding = 2f;
+        private const double HoverRepaintInterval = 1d / 30d;
 
         private static readonly List<Registration> Registrations = new();
         private static readonly List<Registration> TreeFolderRegistrations = new();
@@ -29,6 +30,8 @@ namespace ContextActionsSlop.Editor
         private static bool _treeSortRequired;
         private static EditorWindow _projectWindow;
         private static string _hoveredGuid;
+        private static double _nextHoverRepaintTime;
+        private static bool _mouseWasOverProjectWindow;
 
         static ProjectContextActionHost()
         {
@@ -150,10 +153,32 @@ namespace ContextActionsSlop.Editor
         private static void TrackProjectWindow()
         {
             EditorWindow hoveredWindow = EditorWindow.mouseOverWindow;
-            if (hoveredWindow == null || hoveredWindow.GetType().Name != "ProjectBrowser") return;
+            bool isOverProjectWindow =
+                hoveredWindow != null && hoveredWindow.GetType().Name == "ProjectBrowser";
+
+            if (!isOverProjectWindow)
+            {
+                if (_mouseWasOverProjectWindow && _projectWindow != null)
+                {
+                    _hoveredGuid = null;
+                    _projectWindow.Repaint();
+                }
+
+                _mouseWasOverProjectWindow = false;
+                return;
+            }
 
             _projectWindow = hoveredWindow;
+            _mouseWasOverProjectWindow = true;
             if (!_projectWindow.wantsMouseMove) _projectWindow.wantsMouseMove = true;
+            if (!_projectWindow.wantsMouseEnterLeaveWindow)
+                _projectWindow.wantsMouseEnterLeaveWindow = true;
+
+            double now = EditorApplication.timeSinceStartup;
+            if (now < _nextHoverRepaintTime) return;
+
+            _nextHoverRepaintTime = now + HoverRepaintInterval;
+            _projectWindow.Repaint();
         }
 
         internal static void RepaintProjectWindow()
