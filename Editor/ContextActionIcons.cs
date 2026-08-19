@@ -11,6 +11,14 @@ namespace ContextActionsSlop.Editor
             "Assets/Plugins/Context Actions Slop/Icons/Open-Image-Editor.svg";
         private const string AddScriptPath =
             "Assets/Plugins/Context Actions Slop/Icons/Add-Script.svg";
+        private const string MaterialPath =
+            "Assets/Plugins/Context Actions Slop/Icons/Material.svg";
+        private const string ShaderPath =
+            "Assets/Plugins/Context Actions Slop/Icons/Shader.svg";
+        private const string AudioPlayPath =
+            "Assets/Plugins/Context Actions Slop/Icons/Audio-Play.svg";
+        private const string AudioStopPath =
+            "Assets/Plugins/Context Actions Slop/Icons/Audio-Stop.svg";
 
         private static Texture2D _addFolder;
         private static Texture2D _openInImageEditor;
@@ -18,6 +26,14 @@ namespace ContextActionsSlop.Editor
         private static bool _addFolderLoaded;
         private static bool _openInImageEditorLoaded;
         private static bool _addScriptLoaded;
+        private static Texture2D _material;
+        private static Texture2D _shader;
+        private static Texture2D _audioPlay;
+        private static Texture2D _audioStop;
+        private static bool _materialLoaded;
+        private static bool _shaderLoaded;
+        private static bool _audioPlayLoaded;
+        private static bool _audioStopLoaded;
 
         static ContextActionIcons()
         {
@@ -67,14 +83,54 @@ namespace ContextActionsSlop.Editor
             }
         }
 
+        public static Texture2D Material => LoadOnce(
+            ref _material,
+            ref _materialLoaded,
+            MaterialPath);
+
+        public static Texture2D Shader => LoadOnce(
+            ref _shader,
+            ref _shaderLoaded,
+            ShaderPath);
+
+        public static Texture2D AudioPlay => LoadOnce(
+            ref _audioPlay,
+            ref _audioPlayLoaded,
+            AudioPlayPath);
+
+        public static Texture2D AudioStop => LoadOnce(
+            ref _audioStop,
+            ref _audioStopLoaded,
+            AudioStopPath);
+
+        private static Texture2D LoadOnce(
+            ref Texture2D texture,
+            ref bool loaded,
+            string path)
+        {
+            if (loaded) return texture;
+
+            loaded = true;
+            texture = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+            return texture;
+        }
+
         private static void ClearCache()
         {
             _addFolder = null;
             _openInImageEditor = null;
             _addScript = null;
+            _material = null;
+            _shader = null;
+            _audioPlay = null;
+            _audioStop = null;
             _addFolderLoaded = false;
             _openInImageEditorLoaded = false;
             _addScriptLoaded = false;
+            _materialLoaded = false;
+            _shaderLoaded = false;
+            _audioPlayLoaded = false;
+            _audioStopLoaded = false;
         }
     }
 }
