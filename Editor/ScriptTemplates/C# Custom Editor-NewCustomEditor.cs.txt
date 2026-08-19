@@ -1,0 +1,12 @@
+using UnityEditor;
+
+#ROOTNAMESPACEBEGIN#
+// [CustomEditor(typeof(/* TargetType */))]
+public class #SCRIPTNAME# : Editor
+{
+    public override void OnInspectorGUI()
+    {
+        DrawDefaultInspector();
+    }
+}
+#ROOTNAMESPACEEND#

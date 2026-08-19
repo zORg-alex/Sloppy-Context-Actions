@@ -22,6 +22,10 @@ namespace ContextActionsSlop.Editor
             new("C# Struct", "C# Struct-NewStruct.cs.txt", "NewStruct.cs"),
             new("C# Enum", "C# Enum-NewEnum.cs.txt", "NewEnum.cs"),
             new(string.Empty, string.Empty, string.Empty),
+            new("C# Custom Editor Script", "C# Custom Editor-NewCustomEditor.cs.txt", "NewCustomEditor.cs", requiresEditorFolder: true),
+            new("C# Custom Property Drawer", "C# Custom Property Drawer-NewPropertyDrawer.cs.txt", "NewPropertyDrawer.cs", requiresEditorFolder: true),
+            new("C# Editor Window Script", "C# Editor Window-NewEditorWindow.cs.txt", "NewEditorWindow.cs", requiresEditorFolder: true),
+            new(string.Empty, string.Empty, string.Empty),
             new("C# Test Script", "C# Test Script-NewTestScript.cs.txt", "NewTestScript.cs"),
             new(string.Empty, string.Empty, string.Empty),
             new("Assembly Definition", "Assembly Definition-NewAssembly.asmdef.txt", "NewAssembly.asmdef"),
@@ -70,6 +74,13 @@ namespace ContextActionsSlop.Editor
                 }
 
                 ScriptTemplate capturedTemplate = template;
+                if (capturedTemplate.RequiresEditorFolder && !IsEditorFolder(item.Path))
+                {
+                    menu.AddDisabledItem(
+                        new GUIContent(capturedTemplate.Label + " (requires Editor folder)"));
+                    continue;
+                }
+
                 menu.AddItem(
                     new GUIContent(capturedTemplate.Label),
                     false,
@@ -77,6 +88,16 @@ namespace ContextActionsSlop.Editor
             }
 
             menu.ShowAsContext();
+        }
+
+        private static bool IsEditorFolder(string path)
+        {
+            foreach (string segment in path.Split('/'))
+            {
+                if (segment.Equals("Editor", StringComparison.OrdinalIgnoreCase)) return true;
+            }
+
+            return false;
         }
 
         private static void Create(ProjectContextItem item, ScriptTemplate template)
@@ -92,12 +113,18 @@ namespace ContextActionsSlop.Editor
             public string Label { get; }
             public string FileName { get; }
             public string DefaultName { get; }
+            public bool RequiresEditorFolder { get; }
 
-            public ScriptTemplate(string label, string fileName, string defaultName)
+            public ScriptTemplate(
+                string label,
+                string fileName,
+                string defaultName,
+                bool requiresEditorFolder = false)
             {
                 Label = label;
                 FileName = fileName;
                 DefaultName = defaultName;
+                RequiresEditorFolder = requiresEditorFolder;
             }
         }
     }
