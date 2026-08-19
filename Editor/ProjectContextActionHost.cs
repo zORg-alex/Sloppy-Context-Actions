@@ -4,7 +4,7 @@ using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
-namespace ContextActionsSlop.Editor
+namespace SloppyContextActions.Editor
 {
     /// <summary>
     /// Hosts independently registered controls on hovered Project-window folders and assets.

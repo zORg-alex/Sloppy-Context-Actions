@@ -2,7 +2,7 @@ using System;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace ContextActionsSlop.Editor
+namespace SloppyContextActions.Editor
 {
     internal static class AsepriteRunningInstance
     {

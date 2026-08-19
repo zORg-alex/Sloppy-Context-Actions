@@ -5,13 +5,13 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace ContextActionsSlop.Editor
+namespace SloppyContextActions.Editor
 {
     /// <summary>Draws one action strip for the active folder in each Project window.</summary>
     [InitializeOnLoad]
     public static class CurrentFolderActionHost
     {
-        private const string OverlayName = "context-actions-slop-current-folder";
+        private const string OverlayName = "sloppy-context-actions-current-folder";
         private const BindingFlags InstanceMembers =
             BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 
@@ -61,7 +61,7 @@ namespace ContextActionsSlop.Editor
         {
             if (ProjectBrowserType == null) return;
             if (EditorApplication.timeSinceStartup < _nextOverlayUpdate) return;
-            _nextOverlayUpdate = EditorApplication.timeSinceStartup + 0.1d;
+            _nextOverlayUpdate = EditorApplication.timeSinceStartup + 0.05d;
 
             HashSet<int> liveWindows = new();
             foreach (EditorWindow window in Resources.FindObjectsOfTypeAll<EditorWindow>())

@@ -4,14 +4,14 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 
-namespace ContextActionsSlop.Editor
+namespace SloppyContextActions.Editor
 {
     [InitializeOnLoad]
     internal static class CreateScriptContextAction
     {
-        private const string RegistrationId = "context-actions-slop.create-script";
+        private const string RegistrationId = "sloppy-context-actions.create-script";
         private const string TemplateRoot =
-            "Assets/Plugins/Context Actions Slop/Editor/ScriptTemplates/";
+            "Assets/Plugins/Sloppy Context Actions/Editor/ScriptTemplates/";
 
         private static readonly ScriptTemplate[] Templates =
         {

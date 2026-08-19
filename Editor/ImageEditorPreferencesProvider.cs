@@ -2,16 +2,16 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 
-namespace ContextActionsSlop.Editor
+namespace SloppyContextActions.Editor
 {
     internal static class ImageEditorPreferencesProvider
     {
         [SettingsProvider]
         private static SettingsProvider CreateProvider()
         {
-            return new SettingsProvider("Preferences/Context Actions Slop", SettingsScope.User)
+            return new SettingsProvider("Preferences/Sloppy Context Actions", SettingsScope.User)
             {
-                label = "Context Actions Slop",
+                label = "Sloppy Context Actions",
                 guiHandler = _ => DrawPreferences(),
                 keywords = new[]
                 {

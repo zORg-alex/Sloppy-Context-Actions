@@ -3,24 +3,24 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 
-namespace ContextActionsSlop.Editor
+namespace SloppyContextActions.Editor
 {
     internal static class ContextActionIcons
     {
         private const string AddFolderPath =
-            "Assets/Plugins/Context Actions Slop/Icons/Add-Folder.svg";
+            "Assets/Plugins/Sloppy Context Actions/Icons/Add-Folder.svg";
         private const string OpenInImageEditorPath =
-            "Assets/Plugins/Context Actions Slop/Icons/Open-Image-Editor.svg";
+            "Assets/Plugins/Sloppy Context Actions/Icons/Open-Image-Editor.svg";
         private const string AddScriptPath =
-            "Assets/Plugins/Context Actions Slop/Icons/Add-Script.svg";
+            "Assets/Plugins/Sloppy Context Actions/Icons/Add-Script.svg";
         private const string MaterialPath =
-            "Assets/Plugins/Context Actions Slop/Icons/Material.svg";
+            "Assets/Plugins/Sloppy Context Actions/Icons/Material.svg";
         private const string ShaderPath =
-            "Assets/Plugins/Context Actions Slop/Icons/Shader.svg";
+            "Assets/Plugins/Sloppy Context Actions/Icons/Shader.svg";
         private const string AudioPlayPath =
-            "Assets/Plugins/Context Actions Slop/Icons/Audio-Play.svg";
+            "Assets/Plugins/Sloppy Context Actions/Icons/Audio-Play.svg";
         private const string AudioStopPath =
-            "Assets/Plugins/Context Actions Slop/Icons/Audio-Stop.svg";
+            "Assets/Plugins/Sloppy Context Actions/Icons/Audio-Stop.svg";
 
         private static Texture2D _addFolder;
         private static Texture2D _openInImageEditor;

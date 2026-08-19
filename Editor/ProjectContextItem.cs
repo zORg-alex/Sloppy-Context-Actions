@@ -1,7 +1,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace ContextActionsSlop.Editor
+namespace SloppyContextActions.Editor
 {
     /// <summary>Information and layout state for one item drawn in the Project window.</summary>
     public sealed class ProjectContextItem

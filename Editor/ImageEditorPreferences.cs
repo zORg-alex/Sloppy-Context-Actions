@@ -5,7 +5,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-namespace ContextActionsSlop.Editor
+namespace SloppyContextActions.Editor
 {
     [Serializable]
     internal sealed class ImageEditorEntry
@@ -28,8 +28,9 @@ namespace ContextActionsSlop.Editor
 
     internal static class ImageEditorPreferences
     {
-        private const string EditorPrefsKey = "ContextActionsSlop.ImageEditors.v1";
-        private const string PreferencesPath = "Preferences/Context Actions Slop";
+        private const string EditorPrefsKey = "SloppyContextActions.ImageEditors.v1";
+        private const string LegacyEditorPrefsKey = "ContextActionsSlop.ImageEditors.v1";
+        private const string PreferencesPath = "Preferences/Sloppy Context Actions";
 
         private static ImageEditorCollection _data;
 
@@ -85,6 +86,7 @@ namespace ContextActionsSlop.Editor
         {
             if (_data != null) return;
 
+            MigrateLegacyPreference();
             string json = EditorPrefs.GetString(EditorPrefsKey, string.Empty);
             _data = string.IsNullOrEmpty(json)
                 ? new ImageEditorCollection()
@@ -98,6 +100,12 @@ namespace ContextActionsSlop.Editor
                 DiscoverInstalledEditors();
                 Save();
             }
+        }
+
+        private static void MigrateLegacyPreference()
+        {
+            if (EditorPrefs.HasKey(EditorPrefsKey) || !EditorPrefs.HasKey(LegacyEditorPrefsKey)) return;
+            EditorPrefs.SetString(EditorPrefsKey, EditorPrefs.GetString(LegacyEditorPrefsKey, string.Empty));
         }
 
         private static IEnumerable<ImageEditorEntry> GetDiscoveredEditors()

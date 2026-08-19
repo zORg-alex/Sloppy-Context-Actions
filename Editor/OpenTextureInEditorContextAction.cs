@@ -6,12 +6,12 @@ using UnityEditor;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
-namespace ContextActionsSlop.Editor
+namespace SloppyContextActions.Editor
 {
     [InitializeOnLoad]
     internal static class OpenTextureInEditorContextAction
     {
-        private const string RegistrationId = "context-actions-slop.open-texture-in-editor";
+        private const string RegistrationId = "sloppy-context-actions.open-texture-in-editor";
 
         static OpenTextureInEditorContextAction()
         {

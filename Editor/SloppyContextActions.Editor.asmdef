@@ -1,6 +1,6 @@
 {
-  "name": "ContextActionsSlop.Editor",
-  "rootNamespace": "ContextActionsSlop.Editor",
+  "name": "SloppyContextActions.Editor",
+  "rootNamespace": "SloppyContextActions.Editor",
   "references": [],
   "includePlatforms": [
     "Editor"

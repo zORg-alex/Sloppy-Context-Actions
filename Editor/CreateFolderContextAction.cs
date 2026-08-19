@@ -2,12 +2,12 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 
-namespace ContextActionsSlop.Editor
+namespace SloppyContextActions.Editor
 {
     [InitializeOnLoad]
     internal static class CreateFolderContextAction
     {
-        private const string RegistrationId = "context-actions-slop.create-folder";
+        private const string RegistrationId = "sloppy-context-actions.create-folder";
 
         private static readonly string[] PresetNames =
         {

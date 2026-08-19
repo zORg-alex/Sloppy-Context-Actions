@@ -1,7 +1,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace ContextActionsSlop.Editor
+namespace SloppyContextActions.Editor
 {
     public enum ProjectContextButtonClick
     {
@@ -13,7 +13,7 @@ namespace ContextActionsSlop.Editor
     /// <summary>Draws a Project-window button with native hover/pressed states and two mouse actions.</summary>
     public static class ProjectContextButton
     {
-        private static readonly int ButtonHint = "ContextActionsSlop.ProjectContextButton".GetHashCode();
+        private static readonly int ButtonHint = "SloppyContextActions.ProjectContextButton".GetHashCode();
 
         public static ProjectContextButtonClick Draw(
             Rect rect,

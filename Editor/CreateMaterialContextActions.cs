@@ -4,17 +4,17 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace ContextActionsSlop.Editor
+namespace SloppyContextActions.Editor
 {
     [InitializeOnLoad]
     internal static class CreateMaterialContextActions
     {
         private const string FolderRegistrationId =
-            "context-actions-slop.create-material-in-folder";
+            "sloppy-context-actions.create-material-in-folder";
         private const string TextureRegistrationId =
-            "context-actions-slop.create-material-from-texture";
+            "sloppy-context-actions.create-material-from-texture";
         private const string ShaderRegistrationId =
-            "context-actions-slop.create-material-from-shader";
+            "sloppy-context-actions.create-material-from-shader";
 
         static CreateMaterialContextActions()
         {
@@ -102,7 +102,7 @@ namespace ContextActionsSlop.Editor
             if (shader == null)
             {
                 Debug.LogError(
-                    "Context Actions Slop could not find a default Lit shader for the active render pipeline.");
+                    "Sloppy Context Actions could not find a default Lit shader for the active render pipeline.");
                 return;
             }
 

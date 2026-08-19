@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Reflection;
 using UnityEngine;
 
-namespace ContextActionsSlop.Editor
+namespace SloppyContextActions.Editor
 {
     internal static class ContextActionPerformance
     {
@@ -37,11 +37,11 @@ namespace ContextActionsSlop.Editor
 
                 int milliseconds = Mathf.RoundToInt((float)(seconds * 1000d));
                 UnityEngine.Debug.LogError(
-                    $"Context Actions Slop: '{_operation}' took {milliseconds} ms. " +
+                    $"Sloppy Context Actions: '{_operation}' took {milliseconds} ms. " +
                     "This editor lookup exceeded the 250 ms budget and should be optimized. " +
                     "This warning is emitted once per Unity domain reload.\n\n" +
                     "Copy the following prompt into Codex or your preferred LLM:\n" +
-                    $"Optimize the Unity Editor lookup '{_operation}' in the Context Actions Slop plugin. " +
+                    $"Optimize the Unity Editor lookup '{_operation}' in the Sloppy Context Actions plugin. " +
                     $"It took {milliseconds} ms in this project. {_optimizationContext} " +
                     "Preserve behavior, profile the actual bottleneck, cache reusable results, and invalidate " +
                     "the cache only on relevant events such as project changes, script compilation, package " +

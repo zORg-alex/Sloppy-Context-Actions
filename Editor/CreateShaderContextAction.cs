@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace ContextActionsSlop.Editor
+namespace SloppyContextActions.Editor
 {
     [InitializeOnLoad]
     internal static class CreateShaderContextAction
     {
-        private const string RegistrationId = "context-actions-slop.create-shader";
+        private const string RegistrationId = "sloppy-context-actions.create-shader";
         private const string CreateMenuPrefix = "Assets/Create/";
         private const string ShaderPrefix = "Assets/Create/Shader/";
         private const string ShaderGraphPrefix = "Assets/Create/Shader Graph/";
@@ -112,7 +112,7 @@ namespace ContextActionsSlop.Editor
             if (!EditorApplication.ExecuteMenuItem(menuPath))
             {
                 Debug.LogError(
-                    $"Context Actions Slop could not execute Unity menu item '{menuPath}'.");
+                    $"Sloppy Context Actions could not execute Unity menu item '{menuPath}'.");
             }
         }
     }

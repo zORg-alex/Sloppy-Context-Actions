@@ -6,13 +6,15 @@ using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace ContextActionsSlop.Editor
+namespace SloppyContextActions.Editor
 {
     [InitializeOnLoad]
     internal static class CreateEditorScriptContextAction
     {
-        private const string RegistrationId = "context-actions-slop.create-editor-script";
+        private const string RegistrationId = "sloppy-context-actions.create-editor-script";
         private const string PlacementPreferenceKey =
+            "SloppyContextActions.EditorScriptPlacement";
+        private const string LegacyPlacementPreferenceKey =
             "ContextActionsSlop.EditorScriptPlacement";
 
         private enum Placement
@@ -35,9 +37,20 @@ namespace ContextActionsSlop.Editor
 
         private static Placement CurrentPlacement
         {
-            get => (Placement)EditorPrefs.GetInt(
-                PlacementPreferenceKey,
-                (int)Placement.EditorSubfolder);
+            get
+            {
+                if (!EditorPrefs.HasKey(PlacementPreferenceKey) &&
+                    EditorPrefs.HasKey(LegacyPlacementPreferenceKey))
+                {
+                    EditorPrefs.SetInt(
+                        PlacementPreferenceKey,
+                        EditorPrefs.GetInt(LegacyPlacementPreferenceKey, (int)Placement.EditorSubfolder));
+                }
+
+                return (Placement)EditorPrefs.GetInt(
+                    PlacementPreferenceKey,
+                    (int)Placement.EditorSubfolder);
+            }
             set => EditorPrefs.SetInt(PlacementPreferenceKey, (int)value);
         }
 

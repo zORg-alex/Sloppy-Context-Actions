@@ -3,12 +3,12 @@ using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
-namespace ContextActionsSlop.Editor
+namespace SloppyContextActions.Editor
 {
     [InitializeOnLoad]
     internal static class AudioPreviewContextAction
     {
-        private const string RegistrationId = "context-actions-slop.audio-preview";
+        private const string RegistrationId = "sloppy-context-actions.audio-preview";
         private static AudioClip _activeClip;
 
         static AudioPreviewContextAction()
@@ -134,7 +134,7 @@ namespace ContextActionsSlop.Editor
 
             _missingApiReported = true;
             Debug.LogError(
-                "Context Actions Slop could not locate Unity's internal AudioUtil preview API. " +
+                "Sloppy Context Actions could not locate Unity's internal AudioUtil preview API. " +
                 "Audio preview is unavailable in this Unity version.");
             return false;
         }
@@ -145,7 +145,7 @@ namespace ContextActionsSlop.Editor
 
             _missingApiReported = true;
             Debug.LogError(
-                "Context Actions Slop failed to invoke Unity's AudioUtil preview API.\n" +
+                "Sloppy Context Actions failed to invoke Unity's AudioUtil preview API.\n" +
                 exception);
         }
     }

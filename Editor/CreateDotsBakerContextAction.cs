@@ -8,12 +8,12 @@ using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace ContextActionsSlop.Editor
+namespace SloppyContextActions.Editor
 {
     [InitializeOnLoad]
     internal static class CreateDotsBakerContextAction
     {
-        private const string RegistrationId = "context-actions-slop.create-dots-baker";
+        private const string RegistrationId = "sloppy-context-actions.create-dots-baker";
 
         static CreateDotsBakerContextAction()
         {
