@@ -1,3 +1,5 @@
+using System;
+using System.IO;
 using UnityEditor;
 using UnityEngine;
 
@@ -34,6 +36,8 @@ namespace ContextActionsSlop.Editor
         private static bool _shaderLoaded;
         private static bool _audioPlayLoaded;
         private static bool _audioStopLoaded;
+        private static bool _shaderArtworkChecked;
+        private static bool _shaderHasArtwork;
 
         static ContextActionIcons()
         {
@@ -88,10 +92,22 @@ namespace ContextActionsSlop.Editor
             ref _materialLoaded,
             MaterialPath);
 
-        public static Texture2D Shader => LoadOnce(
-            ref _shader,
-            ref _shaderLoaded,
-            ShaderPath);
+        public static Texture2D Shader
+        {
+            get
+            {
+                Texture2D custom = LoadOnce(ref _shader, ref _shaderLoaded, ShaderPath);
+                if (!_shaderArtworkChecked)
+                {
+                    _shaderArtworkChecked = true;
+                    _shaderHasArtwork = HasSvgArtwork(ShaderPath);
+                }
+
+                if (_shaderHasArtwork) return custom;
+
+                return EditorGUIUtility.IconContent("Shader Icon").image as Texture2D;
+            }
+        }
 
         public static Texture2D AudioPlay => LoadOnce(
             ref _audioPlay,
@@ -115,6 +131,25 @@ namespace ContextActionsSlop.Editor
             return texture;
         }
 
+        private static bool HasSvgArtwork(string path)
+        {
+            if (!File.Exists(path)) return false;
+
+            string svg = File.ReadAllText(path);
+            string[] artworkElements =
+            {
+                "<path", "<circle", "<ellipse", "<rect", "<line", "<polyline",
+                "<polygon", "<text", "<use", "<image"
+            };
+            foreach (string element in artworkElements)
+            {
+                if (svg.IndexOf(element, StringComparison.OrdinalIgnoreCase) >= 0)
+                    return true;
+            }
+
+            return false;
+        }
+
         private static void ClearCache()
         {
             _addFolder = null;
@@ -131,6 +166,8 @@ namespace ContextActionsSlop.Editor
             _shaderLoaded = false;
             _audioPlayLoaded = false;
             _audioStopLoaded = false;
+            _shaderArtworkChecked = false;
+            _shaderHasArtwork = false;
         }
     }
 }

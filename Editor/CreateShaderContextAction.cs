@@ -12,6 +12,8 @@ namespace ContextActionsSlop.Editor
         private const string CreateMenuPrefix = "Assets/Create/";
         private const string ShaderPrefix = "Assets/Create/Shader/";
         private const string ShaderGraphPrefix = "Assets/Create/Shader Graph/";
+        private const string ShaderGraphFromTemplate =
+            "Assets/Create/Shader Graph/From Template...";
 
         static CreateShaderContextAction()
         {
@@ -57,6 +59,15 @@ namespace ContextActionsSlop.Editor
                 menu.AddDisabledItem(new GUIContent("No shader templates found"));
                 menu.ShowAsContext();
                 return;
+            }
+
+            if (templates.Remove(ShaderGraphFromTemplate))
+            {
+                menu.AddItem(
+                    new GUIContent("Shader Graph/From Template..."),
+                    false,
+                    () => ExecuteTemplate(item, ShaderGraphFromTemplate));
+                menu.AddSeparator("Shader Graph/");
             }
 
             foreach (string template in templates)
