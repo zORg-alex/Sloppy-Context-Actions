@@ -46,13 +46,7 @@ namespace ContextActionsSlop.Editor
 
         internal static Type FindType(string fullName)
         {
-            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
-            {
-                Type type = assembly.GetType(fullName, throwOnError: false);
-                if (type != null) return type;
-            }
-
-            return null;
+            return ContextActionTypeCache.Find(fullName);
         }
     }
 
@@ -179,40 +173,49 @@ namespace ContextActionsSlop.Editor
 
         private void LoadComponents()
         {
-            Type componentInterface = CreateDotsBakerContextAction.FindType(
-                "Unity.Entities.IComponentData");
-            Type bufferInterface = CreateDotsBakerContextAction.FindType(
-                "Unity.Entities.IBufferElementData");
-            Type sharedInterface = CreateDotsBakerContextAction.FindType(
-                "Unity.Entities.ISharedComponentData");
-            if (componentInterface == null) return;
-
-            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+            using (ContextActionPerformance.Measure(
+                       "DOTS Baker component discovery",
+                       "The lookup enumerates loadable types from project script assemblies and classifies DOTS component interfaces when the Baker picker opens."))
             {
-                if (!IsProjectAssembly(assembly)) continue;
+                Type componentInterface = CreateDotsBakerContextAction.FindType(
+                    "Unity.Entities.IComponentData");
+                Type bufferInterface = CreateDotsBakerContextAction.FindType(
+                    "Unity.Entities.IBufferElementData");
+                Type sharedInterface = CreateDotsBakerContextAction.FindType(
+                    "Unity.Entities.ISharedComponentData");
+                if (componentInterface == null) return;
 
-                foreach (Type type in GetLoadableTypes(assembly))
+                foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
                 {
-                    if (type == null || type.IsAbstract || type.IsGenericTypeDefinition ||
-                        !type.IsValueType)
+                    if (!IsProjectAssembly(assembly)) continue;
+
+                    foreach (Type type in GetLoadableTypes(assembly))
                     {
-                        continue;
+                        if (type == null || type.IsAbstract || type.IsGenericTypeDefinition ||
+                            !type.IsValueType)
+                        {
+                            continue;
+                        }
+
+                        ComponentKind? kind = null;
+                        if (bufferInterface?.IsAssignableFrom(type) == true)
+                            kind = ComponentKind.Buffer;
+                        else if (sharedInterface?.IsAssignableFrom(type) == true)
+                            kind = ComponentKind.SharedComponent;
+                        else if (componentInterface.IsAssignableFrom(type))
+                            kind = ComponentKind.Component;
+
+                        if (kind.HasValue)
+                            _components.Add(new ComponentEntry(type, kind.Value));
                     }
-
-                    ComponentKind? kind = null;
-                    if (bufferInterface?.IsAssignableFrom(type) == true)
-                        kind = ComponentKind.Buffer;
-                    else if (sharedInterface?.IsAssignableFrom(type) == true)
-                        kind = ComponentKind.SharedComponent;
-                    else if (componentInterface.IsAssignableFrom(type))
-                        kind = ComponentKind.Component;
-
-                    if (kind.HasValue) _components.Add(new ComponentEntry(type, kind.Value));
                 }
-            }
 
-            _components.Sort((left, right) =>
-                string.Compare(left.DisplayName, right.DisplayName, StringComparison.OrdinalIgnoreCase));
+                _components.Sort((left, right) =>
+                    string.Compare(
+                        left.DisplayName,
+                        right.DisplayName,
+                        StringComparison.OrdinalIgnoreCase));
+            }
         }
 
         private IEnumerable<ComponentEntry> GetFilteredComponents()

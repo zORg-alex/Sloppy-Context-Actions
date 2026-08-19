@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
@@ -111,29 +110,34 @@ namespace ContextActionsSlop.Editor
 
         private static void AppendUserTemplates(GenericMenu menu, ProjectContextItem item)
         {
-            string[] guids = AssetDatabase.FindAssets("t:TextAsset", new[] { "Assets" });
-            List<string> paths = new();
-            foreach (string guid in guids)
+            using (ContextActionPerformance.Measure(
+                       "Project user-template discovery",
+                       "The lookup searches Unity's asset database for every *.cs.txt file under Assets when the script-template menu opens."))
             {
-                string path = AssetDatabase.GUIDToAssetPath(guid);
-                if (!path.EndsWith(".cs.txt", StringComparison.OrdinalIgnoreCase)) continue;
-                if (path.StartsWith(TemplateRoot, StringComparison.OrdinalIgnoreCase)) continue;
-                paths.Add(path);
-            }
+                string[] guids = AssetDatabase.FindAssets("t:TextAsset", new[] { "Assets" });
+                List<string> paths = new();
+                foreach (string guid in guids)
+                {
+                    string path = AssetDatabase.GUIDToAssetPath(guid);
+                    if (!path.EndsWith(".cs.txt", StringComparison.OrdinalIgnoreCase)) continue;
+                    if (path.StartsWith(TemplateRoot, StringComparison.OrdinalIgnoreCase)) continue;
+                    paths.Add(path);
+                }
 
-            if (paths.Count == 0) return;
-            paths.Sort(StringComparer.OrdinalIgnoreCase);
-            menu.AddSeparator(string.Empty);
+                if (paths.Count == 0) return;
+                paths.Sort(StringComparer.OrdinalIgnoreCase);
+                menu.AddSeparator(string.Empty);
 
-            foreach (string path in paths)
-            {
-                string capturedPath = path;
-                string fileName = Path.GetFileNameWithoutExtension(
-                    Path.GetFileNameWithoutExtension(path));
-                menu.AddItem(
-                    new GUIContent("User Templates/" + fileName),
-                    false,
-                    () => CreateUserTemplate(item, capturedPath));
+                foreach (string path in paths)
+                {
+                    string capturedPath = path;
+                    string fileName = Path.GetFileNameWithoutExtension(
+                        Path.GetFileNameWithoutExtension(path));
+                    menu.AddItem(
+                        new GUIContent("User Templates/" + fileName),
+                        false,
+                        () => CreateUserTemplate(item, capturedPath));
+                }
             }
         }
 
@@ -174,12 +178,7 @@ namespace ContextActionsSlop.Editor
 
         private static bool HasType(string fullName)
         {
-            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
-            {
-                if (assembly.GetType(fullName, throwOnError: false) != null) return true;
-            }
-
-            return false;
+            return ContextActionTypeCache.Find(fullName) != null;
         }
 
         private static bool IsEditorFolder(string path)
