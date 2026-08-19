@@ -27,8 +27,6 @@ namespace ContextActionsSlop.Editor
             new("C# Custom Property Drawer", "C# Custom Property Drawer-NewPropertyDrawer.cs.txt", "NewPropertyDrawer.cs", requiresEditorFolder: true),
             new("C# Editor Window Script", "C# Editor Window-NewEditorWindow.cs.txt", "NewEditorWindow.cs", requiresEditorFolder: true),
             new(string.Empty, string.Empty, string.Empty),
-            new("C# Test Script", "C# Test Script-NewTestScript.cs.txt", "NewTestScript.cs"),
-            new(string.Empty, string.Empty, string.Empty),
             new("Assembly Definition", "Assembly Definition-NewAssembly.asmdef.txt", "NewAssembly.asmdef"),
             new("Assembly Definition Reference", "Assembly Definition Reference-NewAssemblyReference.asmref.txt", "NewAssemblyReference.asmref")
         };
