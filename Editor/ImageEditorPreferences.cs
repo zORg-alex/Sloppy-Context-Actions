@@ -12,17 +12,23 @@ namespace SloppyContextActions.Editor
     {
         public string name;
         public string executablePath;
+        public bool reuseRunningInstance;
 
-        public ImageEditorEntry(string name, string executablePath)
+        public ImageEditorEntry(
+            string name,
+            string executablePath,
+            bool reuseRunningInstance = true)
         {
             this.name = name;
             this.executablePath = executablePath;
+            this.reuseRunningInstance = reuseRunningInstance;
         }
     }
 
     [Serializable]
     internal sealed class ImageEditorCollection
     {
+        public int settingsVersion = 2;
         public List<ImageEditorEntry> editors = new();
     }
 
@@ -94,6 +100,17 @@ namespace SloppyContextActions.Editor
 
             _data ??= new ImageEditorCollection();
             _data.editors ??= new List<ImageEditorEntry>();
+
+            if (_data.settingsVersion < 2)
+            {
+                foreach (ImageEditorEntry editor in _data.editors)
+                {
+                    if (editor != null) editor.reuseRunningInstance = true;
+                }
+
+                _data.settingsVersion = 2;
+                Save();
+            }
 
             if (!EditorPrefs.HasKey(EditorPrefsKey))
             {

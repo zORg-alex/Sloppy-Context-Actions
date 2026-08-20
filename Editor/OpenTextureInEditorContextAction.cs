@@ -89,10 +89,9 @@ namespace SloppyContextActions.Editor
 
             try
             {
-                bool isAseprite = Path.GetFileName(editor.executablePath)
-                    .Equals("aseprite.exe", StringComparison.OrdinalIgnoreCase);
-
-                if (isAseprite && AsepriteRunningInstance.TryOpen(absolutePath)) return;
+                if (editor.reuseRunningInstance &&
+                    ImageEditorRunningInstance.TryOpen(editor, absolutePath))
+                    return;
 
                 Process.Start(new ProcessStartInfo
                 {

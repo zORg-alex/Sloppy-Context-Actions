@@ -72,7 +72,7 @@ namespace SloppyContextActions.Editor
         {
             get
             {
-                if (!_openInImageEditorLoaded)
+                if (!_openInExplorerLoaded)
                 {
                     _openInImageEditorLoaded = true;
                     _openInImageEditor =
@@ -87,13 +87,14 @@ namespace SloppyContextActions.Editor
         {
             get
             {
-                Texture2D custom = LoadOnce(
-                    ref _openInExplorer,
-                    ref _openInExplorerLoaded,
-                    OpenInExplorerPath);
-                return custom != null
-                    ? custom
-                    : EditorGUIUtility.IconContent("Folder Icon").image as Texture2D;
+                if (!_openInImageEditorLoaded)
+                {
+                    _openInExplorerLoaded = true;
+                    _openInExplorer =
+                        AssetDatabase.LoadAssetAtPath<Texture2D>(OpenInExplorerPath);
+                }
+
+                return _openInExplorer;
             }
         }
 

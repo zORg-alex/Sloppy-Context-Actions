@@ -103,6 +103,13 @@ namespace SloppyContextActions.Editor
 
                 EditorGUILayout.EndHorizontal();
 
+                editor.reuseRunningInstance = EditorGUILayout.Toggle(
+                    new GUIContent(
+                        "Reuse running instance",
+                        "Prefer handing the file to an already-running editor. " +
+                        "Exact behavior depends on the application."),
+                    editor.reuseRunningInstance);
+
                 if (!string.IsNullOrEmpty(editor.executablePath) && !File.Exists(editor.executablePath))
                     EditorGUILayout.HelpBox("Executable not found.", MessageType.Warning);
 

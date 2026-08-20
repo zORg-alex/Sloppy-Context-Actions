@@ -17,6 +17,7 @@ Only Unity 6.5 and newer has been tested so far. Some features rely on Unity Edi
 - Project tree actions plus current-folder actions beside the Project breadcrumb area.
 
 Left-click performs the primary action. Right-click opens the applicable choices. Configure button size and external image editors in **Edit > Preferences > Sloppy Context Actions**.
+Each image editor can independently prefer handing files to an already-running instance; support depends on the editor, with a dedicated Aseprite handoff currently included on Windows.
 
 ## Installation and customization
 

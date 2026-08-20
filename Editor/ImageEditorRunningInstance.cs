@@ -4,7 +4,7 @@ using System.Text;
 
 namespace SloppyContextActions.Editor
 {
-    internal static class AsepriteRunningInstance
+    internal static class ImageEditorRunningInstance
     {
 #if UNITY_EDITOR_WIN
         private const uint AppCommandClientOnly = 0x00000010;
@@ -15,7 +15,18 @@ namespace SloppyContextActions.Editor
         private static readonly DdeCallback Callback = OnDdeCallback;
 #endif
 
-        public static bool TryOpen(string absolutePath)
+        public static bool TryOpen(ImageEditorEntry editor, string absolutePath)
+        {
+            if (editor == null || string.IsNullOrEmpty(editor.executablePath)) return false;
+
+            string executableName = System.IO.Path.GetFileName(editor.executablePath);
+            if (executableName.Equals("aseprite.exe", StringComparison.OrdinalIgnoreCase))
+                return TryOpenAseprite(absolutePath);
+
+            return false;
+        }
+
+        private static bool TryOpenAseprite(string absolutePath)
         {
 #if UNITY_EDITOR_WIN
             uint instanceId = 0;
