@@ -9,7 +9,7 @@ namespace SloppyContextActions.Editor
     {
         private static string AddFolderPath => Path("Icons/Add-Folder.svg");
         private static string OpenInImageEditorPath => Path("Icons/Open-Image-Editor.svg");
-        private static string OpenInExplorerPath => Path("Icons/Open-In-Explorer.svg");
+        private static string OpenInExplorerPath => Path("Icons/Folder.svg");
         private static string AddScriptPath => Path("Icons/Add-Script.svg");
         private static string MaterialPath => Path("Icons/Material.svg");
         private static string ShaderPath => Path("Icons/Shader.svg");

@@ -36,29 +36,29 @@ namespace SloppyContextActions.Editor
 
             ProjectContextButtonClick click = ProjectContextButton.Draw(buttonRect, content);
             if (click == ProjectContextButtonClick.Left) Reveal(item.Path);
-            else if (click == ProjectContextButtonClick.Right) ShowCopyMenu(item.Path);
+            else if (click == ProjectContextButtonClick.Right)
+                ShowCopyMenu(item.Path, item.IsFolder);
         }
 
-        public static void AppendMenu(GenericMenu menu, string assetPath)
+        public static void AppendFolderMenu(GenericMenu menu, string assetPath)
         {
             menu.AddItem(new GUIContent("Open in File Browser"), false, () => Reveal(assetPath));
             menu.AddItem(new GUIContent("Copy Path/Asset Path"), false, () => Copy(assetPath));
             menu.AddItem(new GUIContent("Copy Path/Full Path"), false, () => Copy(GetFullPath(assetPath)));
-            menu.AddItem(
-                new GUIContent("Copy Path/Parent Folder Path"),
-                false,
-                () => Copy(GetParentPath(assetPath)));
         }
 
-        private static void ShowCopyMenu(string assetPath)
+        private static void ShowCopyMenu(string assetPath, bool isFolder)
         {
             GenericMenu menu = new();
             menu.AddItem(new GUIContent("Asset Path"), false, () => Copy(assetPath));
             menu.AddItem(new GUIContent("Full Path"), false, () => Copy(GetFullPath(assetPath)));
-            menu.AddItem(
-                new GUIContent("Parent Folder Path"),
-                false,
-                () => Copy(GetParentPath(assetPath)));
+            if (!isFolder)
+            {
+                menu.AddItem(
+                    new GUIContent("Parent Folder Path"),
+                    false,
+                    () => Copy(GetParentPath(assetPath)));
+            }
             menu.ShowAsContext();
         }
 

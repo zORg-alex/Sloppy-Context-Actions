@@ -85,7 +85,7 @@ namespace SloppyContextActions.Editor
                 false,
                 () => CreateNamedFolder(item.Path, "New Folder"));
             menu.AddSeparator(string.Empty);
-            AssetPathContextAction.AppendMenu(menu, item.Path);
+            AssetPathContextAction.AppendFolderMenu(menu, item.Path);
             menu.ShowAsContext();
         }
 
