@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection;
+using System.Diagnostics;
 using UnityEditor;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace SloppyContextActions.Editor
 {
@@ -20,12 +21,6 @@ namespace SloppyContextActions.Editor
         private static readonly List<Registration> TreeFolderRegistrations = new();
         private static readonly Type ProjectBrowserType =
             typeof(EditorWindow).Assembly.GetType("UnityEditor.ProjectBrowser");
-        private static readonly MethodInfo IsTwoColumnsMethod = ProjectBrowserType?.GetMethod(
-            "IsTwoColumns",
-            BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-        private static readonly FieldInfo ListAreaRectField = ProjectBrowserType?.GetField(
-            "m_ListAreaRect",
-            BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
         private static bool _sortRequired;
         private static bool _treeSortRequired;
         private static EditorWindow _projectWindow;
@@ -87,12 +82,13 @@ namespace SloppyContextActions.Editor
         private static void DrawProjectItem(string guid, Rect itemRect)
         {
             if (Registrations.Count == 0 && TreeFolderRegistrations.Count == 0) return;
+            if (!itemRect.Contains(Event.current.mousePosition)) return;
 
             EditorWindow hoveredWindow = EditorWindow.mouseOverWindow;
             if (hoveredWindow != null && hoveredWindow.GetType() == ProjectBrowserType)
                 _projectWindow = hoveredWindow;
 
-            bool isTreeFolder = IsLeftTreeItem(itemRect);
+            bool isTreeFolder = GetCurrentSurface() == ProjectContextSurface.TreeFolder;
             ProjectContextItem item = new(
                 guid,
                 itemRect,
@@ -146,14 +142,27 @@ namespace SloppyContextActions.Editor
             }
         }
 
-        private static bool IsLeftTreeItem(Rect itemRect)
+        private static ProjectContextSurface GetCurrentSurface()
         {
-            if (_projectWindow == null || IsTwoColumnsMethod == null || ListAreaRectField == null)
-                return false;
-            if (!(bool)IsTwoColumnsMethod.Invoke(_projectWindow, null)) return false;
+            // Unity invokes projectWindowItemOnGUI from two different internal controls.
+            // Rects are local to those controls, so their coordinates cannot identify the surface.
+            // Inspect only the hovered callback to keep this exact check out of the hot path for
+            // every other visible Project item.
+            StackTrace trace = new(2, false);
+            for (int i = 0; i < 5; i++)
+            {
+                Type declaringType = trace.GetFrame(i)?.GetMethod()?.DeclaringType;
+                if (declaringType == null) continue;
 
-            Rect listAreaRect = (Rect)ListAreaRectField.GetValue(_projectWindow);
-            return itemRect.xMax <= listAreaRect.xMin + 1f;
+                string typeName = declaringType.FullName ?? declaringType.Name;
+                if (typeName.Contains("ObjectListArea"))
+                    return ProjectContextSurface.AssetList;
+                if (typeName.Contains("TreeViewController"))
+                    return ProjectContextSurface.TreeFolder;
+            }
+
+            // Unknown Unity versions should not receive tree-only controls in the asset list.
+            return ProjectContextSurface.AssetList;
         }
 
         private static void TrackProjectWindow()
