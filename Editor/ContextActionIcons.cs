@@ -68,35 +68,15 @@ namespace SloppyContextActions.Editor
             }
         }
 
-        public static Texture2D OpenInImageEditor
-        {
-            get
-            {
-                if (!_openInExplorerLoaded)
-                {
-                    _openInImageEditorLoaded = true;
-                    _openInImageEditor =
-                        AssetDatabase.LoadAssetAtPath<Texture2D>(OpenInImageEditorPath);
-                }
+        public static Texture2D OpenInImageEditor => LoadOnce(
+            ref _openInImageEditor,
+            ref _openInImageEditorLoaded,
+            OpenInImageEditorPath);
 
-                return _openInImageEditor;
-            }
-        }
-
-        public static Texture2D OpenInExplorer
-        {
-            get
-            {
-                if (!_openInImageEditorLoaded)
-                {
-                    _openInExplorerLoaded = true;
-                    _openInExplorer =
-                        AssetDatabase.LoadAssetAtPath<Texture2D>(OpenInExplorerPath);
-                }
-
-                return _openInExplorer;
-            }
-        }
+        public static Texture2D OpenInExplorer => LoadOnce(
+            ref _openInExplorer,
+            ref _openInExplorerLoaded,
+            OpenInExplorerPath);
 
         public static Texture2D Material => LoadOnce(
             ref _material,
