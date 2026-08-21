@@ -21,6 +21,8 @@ namespace SloppyContextActions.Editor
             typeof(EditorWindow).Assembly.GetType("UnityEditor.ProjectBrowser");
         private static readonly MethodInfo GetActiveFolderPathMethod =
             ProjectBrowserType?.GetMethod("GetActiveFolderPath", InstanceMembers);
+        private static readonly MethodInfo IsTwoColumnsMethod =
+            ProjectBrowserType?.GetMethod("IsTwoColumns", InstanceMembers);
         private static readonly FieldInfo ListAreaRectField =
             ProjectBrowserType?.GetField("m_ListAreaRect", InstanceMembers);
 
@@ -97,6 +99,12 @@ namespace SloppyContextActions.Editor
 
         private static void UpdateOverlayLayout(FolderOverlay overlay)
         {
+            if (!IsTwoColumns(overlay.Window))
+            {
+                overlay.Container.style.display = DisplayStyle.None;
+                return;
+            }
+
             string path = GetActiveFolderPath(overlay.Window);
             if (!string.Equals(path, overlay.ActiveFolderPath, StringComparison.Ordinal))
             {
@@ -183,6 +191,11 @@ namespace SloppyContextActions.Editor
         private static string GetActiveFolderPath(EditorWindow window)
         {
             return GetActiveFolderPathMethod?.Invoke(window, null) as string;
+        }
+
+        private static bool IsTwoColumns(EditorWindow window)
+        {
+            return IsTwoColumnsMethod?.Invoke(window, null) is true;
         }
 
         private static float CalculateBreadcrumbTail(float listAreaLeft, string path)
