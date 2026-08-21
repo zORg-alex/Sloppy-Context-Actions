@@ -7,6 +7,8 @@ namespace SloppyContextActions.Editor
     {
         private const string ButtonSizeKey = "SloppyContextActions.ButtonSize.v1";
         private const string LegacyButtonSizeKey = "ContextActionsSlop.ButtonSize.v1";
+        private const string InlineEditorsEnabledKey =
+            "SloppyContextActions.InlineEditorsEnabled.v1";
 
         public const int MinimumButtonSize = 12;
         public const int MaximumButtonSize = 40;
@@ -25,6 +27,12 @@ namespace SloppyContextActions.Editor
             set => EditorPrefs.SetInt(
                 ButtonSizeKey,
                 Mathf.Clamp(value, MinimumButtonSize, MaximumButtonSize));
+        }
+
+        public static bool InlineEditorsEnabled
+        {
+            get => EditorPrefs.GetBool(InlineEditorsEnabledKey, false);
+            set => EditorPrefs.SetBool(InlineEditorsEnabledKey, value);
         }
 
         private static void MigrateLegacyPreference()

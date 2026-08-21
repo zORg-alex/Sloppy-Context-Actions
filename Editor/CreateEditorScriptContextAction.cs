@@ -20,7 +20,8 @@ namespace SloppyContextActions.Editor
         private enum Placement
         {
             EditorSubfolder,
-            SameFolder
+            SameFolder,
+            Inline
         }
 
         private enum EditorScriptKind
@@ -47,9 +48,17 @@ namespace SloppyContextActions.Editor
                         EditorPrefs.GetInt(LegacyPlacementPreferenceKey, (int)Placement.EditorSubfolder));
                 }
 
-                return (Placement)EditorPrefs.GetInt(
+                Placement placement = (Placement)EditorPrefs.GetInt(
                     PlacementPreferenceKey,
                     (int)Placement.EditorSubfolder);
+                if (placement == Placement.Inline &&
+                    !ContextActionPreferences.InlineEditorsEnabled)
+                {
+                    placement = Placement.EditorSubfolder;
+                    EditorPrefs.SetInt(PlacementPreferenceKey, (int)placement);
+                }
+
+                return placement;
             }
             set => EditorPrefs.SetInt(PlacementPreferenceKey, (int)value);
         }
@@ -118,7 +127,13 @@ namespace SloppyContextActions.Editor
                 new GUIContent("Create in same folder"),
                 placement == Placement.SameFolder,
                 () => CurrentPlacement = Placement.SameFolder);
-            menu.AddDisabledItem(new GUIContent("Create inline in target script (planned)"));
+            if (ContextActionPreferences.InlineEditorsEnabled)
+            {
+                menu.AddItem(
+                    new GUIContent("Create inline in target script"),
+                    placement == Placement.Inline,
+                    () => CurrentPlacement = Placement.Inline);
+            }
             menu.AddSeparator(string.Empty);
 
             foreach (EditorScriptKind action in actions)
@@ -153,8 +168,22 @@ namespace SloppyContextActions.Editor
             string sourceDirectory = Path.GetDirectoryName(sourcePath)?.Replace('\\', '/');
             if (string.IsNullOrEmpty(sourceDirectory)) return;
 
+            Placement placement = CurrentPlacement;
+            if (placement == Placement.Inline)
+            {
+                if (!ContextActionPreferences.InlineEditorsEnabled)
+                {
+                    CurrentPlacement = placement = Placement.EditorSubfolder;
+                }
+                else
+                {
+                    AppendInlineEditor(sourcePath, sourceScript, targetType, kind);
+                    return;
+                }
+            }
+
             string destinationDirectory = sourceDirectory;
-            if (CurrentPlacement == Placement.EditorSubfolder)
+            if (placement == Placement.EditorSubfolder)
             {
                 destinationDirectory += "/Editor";
                 if (!AssetDatabase.IsValidFolder(destinationDirectory))
@@ -177,13 +206,95 @@ namespace SloppyContextActions.Editor
 
             File.WriteAllText(
                 destinationPath,
-                BuildSource(targetType, className, kind, CurrentPlacement),
+                BuildSource(targetType, className, kind, placement),
                 new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
             AssetDatabase.ImportAsset(destinationPath, ImportAssetOptions.ForceUpdate);
 
             Object createdAsset = AssetDatabase.LoadAssetAtPath<MonoScript>(destinationPath);
             Selection.activeObject = createdAsset;
             EditorGUIUtility.PingObject(createdAsset);
+        }
+
+        private static void AppendInlineEditor(
+            string sourcePath,
+            MonoScript sourceScript,
+            Type targetType,
+            EditorScriptKind kind)
+        {
+            string suffix = kind == EditorScriptKind.CustomInspector ? "Inspector" : "Drawer";
+            string className = GetSimpleTypeName(targetType) + suffix;
+            string existingSource = File.ReadAllText(sourcePath);
+            if (existingSource.Contains("class " + className) ||
+                existingSource.Contains("struct " + className))
+            {
+                EditorUtility.DisplayDialog(
+                    "Create Inline Editor",
+                    $"{className} already appears to exist in {sourcePath}.",
+                    "OK");
+                return;
+            }
+
+            StringBuilder updatedSource = new(existingSource.TrimEnd());
+            updatedSource.AppendLine();
+            updatedSource.AppendLine();
+            updatedSource.Append(BuildInlineSource(targetType, className, kind));
+            File.WriteAllText(
+                sourcePath,
+                updatedSource.ToString(),
+                new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+            AssetDatabase.ImportAsset(sourcePath, ImportAssetOptions.ForceUpdate);
+            Selection.activeObject = sourceScript;
+            EditorGUIUtility.PingObject(sourceScript);
+        }
+
+        private static string BuildInlineSource(
+            Type targetType,
+            string className,
+            EditorScriptKind kind)
+        {
+            StringBuilder source = new();
+            source.AppendLine("#if UNITY_EDITOR");
+            string targetTypeName = GetCSharpTypeName(targetType);
+
+            if (kind == EditorScriptKind.CustomInspector)
+            {
+                source.Append("[global::UnityEditor.CustomEditor(typeof(")
+                    .Append(targetTypeName).AppendLine("))]");
+                source.Append("public sealed class ").Append(className)
+                    .AppendLine(" : global::UnityEditor.Editor");
+                source.AppendLine("{");
+                source.AppendLine("    public override void OnInspectorGUI()");
+                source.AppendLine("    {");
+                source.AppendLine("        DrawDefaultInspector();");
+                source.AppendLine("    }");
+                source.AppendLine("}");
+            }
+            else
+            {
+                source.Append("[global::UnityEditor.CustomPropertyDrawer(typeof(")
+                    .Append(targetTypeName).AppendLine("))]");
+                source.Append("public sealed class ").Append(className)
+                    .AppendLine(" : global::UnityEditor.PropertyDrawer");
+                source.AppendLine("{");
+                source.AppendLine("    public override void OnGUI(");
+                source.AppendLine("        global::UnityEngine.Rect position,");
+                source.AppendLine("        global::UnityEditor.SerializedProperty property,");
+                source.AppendLine("        global::UnityEngine.GUIContent label)");
+                source.AppendLine("    {");
+                source.AppendLine("        global::UnityEditor.EditorGUI.PropertyField(position, property, label, true);");
+                source.AppendLine("    }");
+                source.AppendLine();
+                source.AppendLine("    public override float GetPropertyHeight(");
+                source.AppendLine("        global::UnityEditor.SerializedProperty property,");
+                source.AppendLine("        global::UnityEngine.GUIContent label)");
+                source.AppendLine("    {");
+                source.AppendLine("        return global::UnityEditor.EditorGUI.GetPropertyHeight(property, label, true);");
+                source.AppendLine("    }");
+                source.AppendLine("}");
+            }
+
+            source.AppendLine("#endif");
+            return source.ToString();
         }
 
         private static string BuildSource(

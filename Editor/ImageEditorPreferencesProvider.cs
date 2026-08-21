@@ -38,6 +38,23 @@ namespace SloppyContextActions.Editor
             }
 
             EditorGUILayout.Space();
+            EditorGUILayout.LabelField("Script Generation", EditorStyles.boldLabel);
+            ContextActionPreferences.InlineEditorsEnabled = EditorGUILayout.Toggle(
+                new GUIContent(
+                    "Enable inline editors",
+                    "Allow editor classes to be appended to their target scripts."),
+                ContextActionPreferences.InlineEditorsEnabled);
+            if (ContextActionPreferences.InlineEditorsEnabled)
+            {
+                EditorGUILayout.HelpBox(
+                    "Inline generation appends editor-only classes directly to target scripts, " +
+                    "including MonoBehaviours. This pollutes runtime source files and can cause " +
+                    "player build errors if generated or edited outside a correctly guarded " +
+                    "editor context. Enable it only if you understand and accept that risk.",
+                    MessageType.Warning);
+            }
+
+            EditorGUILayout.Space();
             EditorGUILayout.LabelField("Image Editors", EditorStyles.boldLabel);
             EditorGUILayout.HelpBox(
                 "The first valid editor is used by left-click. Right-clicking the texture action shows the full list.",
