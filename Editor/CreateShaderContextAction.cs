@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using UnityEditor;
+using UnityEditor.ProjectWindowCallback;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace SloppyContextActions.Editor
 {
@@ -99,9 +102,15 @@ namespace SloppyContextActions.Editor
         private static void CreateFullscreenGraph(ProjectContextItem item)
         {
             Selection.activeObject = item.Asset;
-            ProjectWindowUtil.CreateScriptAssetFromTemplateFile(
-                FullscreenGraphTemplatePath,
-                "New Fullscreen Blit.shadergraph");
+            CreateShaderGraphAction action =
+                ScriptableObject.CreateInstance<CreateShaderGraphAction>();
+            Texture2D icon = EditorGUIUtility.IconContent("Shader Icon").image as Texture2D;
+            ProjectWindowUtil.StartNameEditingIfProjectWindowExists(
+                EntityId.None,
+                action,
+                "New Fullscreen Blit.shadergraph",
+                icon,
+                FullscreenGraphTemplatePath);
         }
 
         private static List<string> FindTemplates()
@@ -134,6 +143,24 @@ namespace SloppyContextActions.Editor
             {
                 Debug.LogError(
                     $"Sloppy Context Actions could not execute Unity menu item '{menuPath}'.");
+            }
+        }
+
+        private sealed class CreateShaderGraphAction : AssetCreationEndAction
+        {
+            public override void Action(
+                EntityId entityId,
+                string pathName,
+                string resourceFile)
+            {
+                string destinationPath = AssetDatabase.GenerateUniqueAssetPath(pathName);
+                File.Copy(resourceFile, destinationPath);
+                AssetDatabase.ImportAsset(
+                    destinationPath,
+                    ImportAssetOptions.ForceSynchronousImport);
+
+                Object createdAsset = AssetDatabase.LoadMainAssetAtPath(destinationPath);
+                ProjectWindowUtil.ShowCreatedAsset(createdAsset);
             }
         }
     }
