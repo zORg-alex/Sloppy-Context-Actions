@@ -1,0 +1,66 @@
+using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.RenderGraphModule;
+using UnityEngine.Rendering.RenderGraphModule.Util;
+using UnityEngine.Rendering.Universal;
+
+public sealed class #SCRIPTNAME# : ScriptableRendererFeature
+{
+    [SerializeField] private Material material;
+    [SerializeField] private RenderPassEvent injectionPoint =
+        RenderPassEvent.AfterRenderingPostProcessing;
+
+    private FullscreenBlitPass _pass;
+
+    public override void Create()
+    {
+        _pass = new FullscreenBlitPass();
+    }
+
+    public override void AddRenderPasses(
+        ScriptableRenderer renderer,
+        ref RenderingData renderingData)
+    {
+        if (material == null) return;
+
+        _pass.renderPassEvent = injectionPoint;
+        _pass.Setup(material);
+        renderer.EnqueuePass(_pass);
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        _pass = null;
+    }
+
+    private sealed class FullscreenBlitPass : ScriptableRenderPass
+    {
+        private Material _material;
+
+        public void Setup(Material passMaterial)
+        {
+            _material = passMaterial;
+            requiresIntermediateTexture = true;
+        }
+
+        public override void RecordRenderGraph(
+            RenderGraph renderGraph,
+            ContextContainer frameData)
+        {
+            UniversalResourceData resources = frameData.Get<UniversalResourceData>();
+            if (resources.isActiveTargetBackBuffer) return;
+
+            TextureHandle source = resources.activeColorTexture;
+            TextureDesc destinationDescriptor = renderGraph.GetTextureDesc(source);
+            destinationDescriptor.name = "#SCRIPTNAME# Color";
+            destinationDescriptor.clearBuffer = false;
+            TextureHandle destination = renderGraph.CreateTexture(destinationDescriptor);
+
+            RenderGraphUtils.BlitMaterialParameters parameters =
+                new(source, destination, _material, 0);
+            renderGraph.AddBlitPass(parameters, "#SCRIPTNAME#");
+
+            resources.cameraColor = destination;
+        }
+    }
+}

@@ -12,6 +12,7 @@ Only Unity 6.5 and newer has been tested so far. Some features rely on Unity Edi
 - Optional inline custom inspectors and property drawers, disabled by default because they modify runtime source files.
 - Material creation from folders, textures, and shaders.
 - Unity's installed shader-template selection from folder and shader contexts.
+- URP 17 RenderGraph templates for fullscreen blits, draw-object passes, and Volume components. The Fullscreen Shader Graph action starts with Screen Position feeding the URP Blit Source sample buffer.
 - Texture opening in configurable external image editors.
 - Audio preview play and stop actions.
 - Reveal assets in the system file browser and copy Unity, absolute, or parent paths.

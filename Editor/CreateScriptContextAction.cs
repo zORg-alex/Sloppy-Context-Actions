@@ -102,6 +102,7 @@ namespace SloppyContextActions.Editor
                     () => Create(item, capturedTemplate));
             }
 
+            UrpScriptTemplates.AppendMenu(menu, item, string.Empty, addSeparator: true);
             AppendPackageTemplates(menu, item);
             AppendUserTemplates(menu, item);
 

@@ -1,0 +1,15 @@
+using System;
+using UnityEngine.Rendering;
+
+[Serializable]
+[VolumeComponentMenu("Custom/#SCRIPTNAME#")]
+public sealed class #SCRIPTNAME# : VolumeComponent, IPostProcessComponent
+{
+    public BoolParameter enabled = new(false);
+    public ClampedFloatParameter intensity = new(0f, 0f, 1f);
+
+    public bool IsActive()
+    {
+        return enabled.value && intensity.value > 0f;
+    }
+}

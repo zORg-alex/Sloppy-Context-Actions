@@ -1,0 +1,90 @@
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.RenderGraphModule;
+using UnityEngine.Rendering.Universal;
+
+public sealed class #SCRIPTNAME# : ScriptableRendererFeature
+{
+    [SerializeField] private LayerMask layerMask = -1;
+    [SerializeField] private RenderPassEvent injectionPoint = RenderPassEvent.AfterRenderingOpaques;
+
+    private DrawObjectsPass _pass;
+
+    public override void Create()
+    {
+        _pass = new DrawObjectsPass();
+    }
+
+    public override void AddRenderPasses(
+        ScriptableRenderer renderer,
+        ref RenderingData renderingData)
+    {
+        _pass.renderPassEvent = injectionPoint;
+        _pass.Setup(layerMask);
+        renderer.EnqueuePass(_pass);
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        _pass = null;
+    }
+
+    private sealed class DrawObjectsPass : ScriptableRenderPass
+    {
+        private static readonly List<ShaderTagId> ShaderTags = new()
+        {
+            new ShaderTagId("UniversalForwardOnly"),
+            new ShaderTagId("UniversalForward"),
+            new ShaderTagId("SRPDefaultUnlit")
+        };
+
+        private LayerMask _layerMask;
+
+        public void Setup(LayerMask value)
+        {
+            _layerMask = value;
+        }
+
+        public override void RecordRenderGraph(
+            RenderGraph renderGraph,
+            ContextContainer frameData)
+        {
+            UniversalResourceData resources = frameData.Get<UniversalResourceData>();
+            UniversalRenderingData rendering = frameData.Get<UniversalRenderingData>();
+            UniversalCameraData camera = frameData.Get<UniversalCameraData>();
+            UniversalLightData lights = frameData.Get<UniversalLightData>();
+
+            DrawingSettings drawing = RenderingUtils.CreateDrawingSettings(
+                ShaderTags,
+                rendering,
+                camera,
+                lights,
+                camera.defaultOpaqueSortFlags);
+            FilteringSettings filtering = new(RenderQueueRange.opaque, _layerMask);
+            RendererListParams rendererListParameters =
+                new(rendering.cullResults, drawing, filtering);
+
+            using (var builder = renderGraph.AddRasterRenderPass<PassData>(
+                       "#SCRIPTNAME#",
+                       out PassData passData))
+            {
+                passData.rendererList = renderGraph.CreateRendererList(rendererListParameters);
+                if (!passData.rendererList.IsValid()) return;
+
+                builder.UseRendererList(passData.rendererList);
+                builder.SetRenderAttachment(resources.activeColorTexture, 0);
+                builder.SetRenderAttachmentDepth(
+                    resources.activeDepthTexture,
+                    AccessFlags.ReadWrite);
+                builder.SetRenderFunc(static (PassData data, RasterGraphContext context) =>
+                    context.cmd.DrawRendererList(data.rendererList));
+            }
+        }
+
+        private sealed class PassData
+        {
+            public RendererListHandle rendererList;
+        }
+    }
+}

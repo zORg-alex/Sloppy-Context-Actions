@@ -14,6 +14,11 @@ namespace SloppyContextActions.Editor
         private const string ShaderGraphPrefix = "Assets/Create/Shader Graph/";
         private const string ShaderGraphFromTemplate =
             "Assets/Create/Shader Graph/From Template...";
+        private const string EmptyFullscreenGraph =
+            "Assets/Create/Shader Graph/URP/Fullscreen Shader Graph";
+        private static string FullscreenGraphTemplatePath =>
+            SloppyContextActionsLocation.GetAssetPath(
+                "Editor/ShaderTemplates/URP Fullscreen Blit.shadergraph.txt");
 
         static CreateShaderContextAction()
         {
@@ -77,10 +82,26 @@ namespace SloppyContextActions.Editor
                 menu.AddItem(
                     new GUIContent(label),
                     false,
-                    () => ExecuteTemplate(item, capturedTemplate));
+                    () =>
+                    {
+                        if (capturedTemplate == EmptyFullscreenGraph)
+                            CreateFullscreenGraph(item);
+                        else
+                            ExecuteTemplate(item, capturedTemplate);
+                    });
             }
 
+            UrpScriptTemplates.AppendMenu(menu, item, "C#/", addSeparator: true);
+
             menu.ShowAsContext();
+        }
+
+        private static void CreateFullscreenGraph(ProjectContextItem item)
+        {
+            Selection.activeObject = item.Asset;
+            ProjectWindowUtil.CreateScriptAssetFromTemplateFile(
+                FullscreenGraphTemplatePath,
+                "New Fullscreen Blit.shadergraph");
         }
 
         private static List<string> FindTemplates()
