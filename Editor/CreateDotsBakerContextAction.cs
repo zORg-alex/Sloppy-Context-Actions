@@ -279,7 +279,9 @@ namespace SloppyContextActions.Editor
 
             File.WriteAllText(
                 destinationPath,
-                BuildBakerSource(className),
+                BuildBakerSource(
+                    className,
+                    ScriptAssetTemplateCreator.GetNamespaceForDirectory(directory)),
                 new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
             AssetDatabase.ImportAsset(destinationPath, ImportAssetOptions.ForceUpdate);
 
@@ -289,20 +291,23 @@ namespace SloppyContextActions.Editor
             Close();
         }
 
-        private string BuildBakerSource(string className)
+        private string BuildBakerSource(
+            string className,
+            string destinationNamespace)
         {
             StringBuilder source = new();
             source.AppendLine("using Unity.Entities;");
             source.AppendLine();
 
-            string targetNamespace = _authoringType.Namespace;
-            if (!string.IsNullOrEmpty(targetNamespace))
+            if (!string.IsNullOrEmpty(destinationNamespace))
             {
-                source.Append("namespace ").Append(targetNamespace).AppendLine();
+                source.Append("namespace ").Append(destinationNamespace).AppendLine();
                 source.AppendLine("{");
             }
 
-            string indent = string.IsNullOrEmpty(targetNamespace) ? string.Empty : "    ";
+            string indent = string.IsNullOrEmpty(destinationNamespace)
+                ? string.Empty
+                : "    ";
             string authoringName = GetCSharpTypeName(_authoringType);
             source.Append(indent).Append("public sealed class ").Append(className)
                 .Append(" : Baker<").Append(authoringName).AppendLine(">");
@@ -335,7 +340,7 @@ namespace SloppyContextActions.Editor
 
             source.Append(indent).AppendLine("    }");
             source.Append(indent).AppendLine("}");
-            if (!string.IsNullOrEmpty(targetNamespace)) source.AppendLine("}");
+            if (!string.IsNullOrEmpty(destinationNamespace)) source.AppendLine("}");
             return source.ToString();
         }
 

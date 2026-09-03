@@ -1,6 +1,7 @@
 using System;
 using UnityEngine.Rendering;
 
+#ROOTNAMESPACEBEGIN#
 [Serializable]
 [VolumeComponentMenu("Custom/#SCRIPTNAME#")]
 public sealed class #SCRIPTNAME# : VolumeComponent, IPostProcessComponent
@@ -13,3 +14,4 @@ public sealed class #SCRIPTNAME# : VolumeComponent, IPostProcessComponent
         return enabled.value && intensity.value > 0f;
     }
 }
+#ROOTNAMESPACEEND#

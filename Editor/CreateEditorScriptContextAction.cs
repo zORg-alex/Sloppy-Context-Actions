@@ -206,7 +206,13 @@ namespace SloppyContextActions.Editor
 
             File.WriteAllText(
                 destinationPath,
-                BuildSource(targetType, className, kind, placement),
+                BuildSource(
+                    targetType,
+                    className,
+                    kind,
+                    placement,
+                    ScriptAssetTemplateCreator.GetNamespaceForDirectory(
+                        destinationDirectory)),
                 new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
             AssetDatabase.ImportAsset(destinationPath, ImportAssetOptions.ForceUpdate);
 
@@ -301,7 +307,8 @@ namespace SloppyContextActions.Editor
             Type targetType,
             string className,
             EditorScriptKind kind,
-            Placement placement)
+            Placement placement,
+            string destinationNamespace)
         {
             StringBuilder source = new();
             if (placement == Placement.SameFolder)
@@ -312,14 +319,15 @@ namespace SloppyContextActions.Editor
             source.AppendLine();
 
             string targetTypeName = GetCSharpTypeName(targetType);
-            string targetNamespace = targetType.Namespace;
-            if (!string.IsNullOrEmpty(targetNamespace))
+            if (!string.IsNullOrEmpty(destinationNamespace))
             {
-                source.Append("namespace ").Append(targetNamespace).AppendLine();
+                source.Append("namespace ").Append(destinationNamespace).AppendLine();
                 source.AppendLine("{");
             }
 
-            string indent = string.IsNullOrEmpty(targetNamespace) ? string.Empty : "    ";
+            string indent = string.IsNullOrEmpty(destinationNamespace)
+                ? string.Empty
+                : "    ";
             if (kind == EditorScriptKind.CustomInspector)
             {
                 source.Append(indent).Append("[CustomEditor(typeof(")
@@ -357,7 +365,7 @@ namespace SloppyContextActions.Editor
                 source.Append(indent).AppendLine("}");
             }
 
-            if (!string.IsNullOrEmpty(targetNamespace)) source.AppendLine("}");
+            if (!string.IsNullOrEmpty(destinationNamespace)) source.AppendLine("}");
             if (placement == Placement.SameFolder) source.AppendLine("#endif");
             return source.ToString();
         }

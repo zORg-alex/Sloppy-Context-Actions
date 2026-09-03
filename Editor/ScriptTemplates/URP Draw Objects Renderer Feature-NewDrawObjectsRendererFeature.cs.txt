@@ -4,6 +4,7 @@ using UnityEngine.Rendering;
 using UnityEngine.Rendering.RenderGraphModule;
 using UnityEngine.Rendering.Universal;
 
+#ROOTNAMESPACEBEGIN#
 public sealed class #SCRIPTNAME# : ScriptableRendererFeature
 {
     [SerializeField] private LayerMask layerMask = -1;
@@ -88,3 +89,4 @@ public sealed class #SCRIPTNAME# : ScriptableRendererFeature
         }
     }
 }
+#ROOTNAMESPACEEND#

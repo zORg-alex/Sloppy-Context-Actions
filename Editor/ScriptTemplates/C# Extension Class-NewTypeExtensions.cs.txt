@@ -1,3 +1,5 @@
+#ROOTNAMESPACEBEGIN#
 public static class #TYPE#Extensions
 {
 }
+#ROOTNAMESPACEEND#

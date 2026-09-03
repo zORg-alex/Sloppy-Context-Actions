@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using UnityEditor;
-using UnityEditor.ProjectWindowCallback;
 using UnityEngine;
 
 namespace SloppyContextActions.Editor
@@ -161,9 +159,8 @@ namespace SloppyContextActions.Editor
 
         private static void CreateUserTemplate(ProjectContextItem item, string templatePath)
         {
-            Selection.activeObject = item.Asset;
             string defaultName = Path.GetFileNameWithoutExtension(templatePath);
-            ProjectWindowUtil.CreateScriptAssetFromTemplateFile(templatePath, defaultName);
+            ScriptAssetTemplateCreator.Create(item, templatePath, defaultName);
         }
 
         private static void AppendPackageTemplates(GenericMenu menu, ProjectContextItem item)
@@ -221,22 +218,17 @@ namespace SloppyContextActions.Editor
 
         private static void CreateExtensionClass(ProjectContextItem item)
         {
-            Selection.activeObject = item.Asset;
-            ExtensionClassCreationAction action =
-                ScriptableObject.CreateInstance<ExtensionClassCreationAction>();
-            Texture2D icon = EditorGUIUtility.IconContent("cs Script Icon").image as Texture2D;
-            ProjectWindowUtil.StartNameEditingIfProjectWindowExists(
-                EntityId.None,
-                action,
+            ScriptAssetTemplateCreator.Create(
+                item,
+                ExtensionTemplatePath,
                 "NewType.cs",
-                icon,
-                ExtensionTemplatePath);
+                appendExtensionsSuffix: true);
         }
 
         private static void Create(ProjectContextItem item, ScriptTemplate template)
         {
-            Selection.activeObject = item.Asset;
-            ProjectWindowUtil.CreateScriptAssetFromTemplateFile(
+            ScriptAssetTemplateCreator.Create(
+                item,
                 TemplateRoot + template.FileName,
                 template.DefaultName);
         }
@@ -284,65 +276,5 @@ namespace SloppyContextActions.Editor
             }
         }
 
-        private sealed class ExtensionClassCreationAction : AssetCreationEndAction
-        {
-            public override void Action(
-                EntityId entityId,
-                string pathName,
-                string resourceFile)
-            {
-                string enteredName = Path.GetFileNameWithoutExtension(pathName);
-                string typeName = SanitizeIdentifier(RemoveExtensionsSuffix(enteredName));
-                string className = typeName + "Extensions";
-                string directory = Path.GetDirectoryName(pathName)?.Replace('\\', '/');
-                if (string.IsNullOrEmpty(directory)) return;
-
-                string destinationPath = $"{directory}/{className}.cs";
-                if (File.Exists(destinationPath))
-                {
-                    EditorUtility.DisplayDialog(
-                        "Create Extension Class",
-                        $"{destinationPath} already exists.",
-                        "OK");
-                    return;
-                }
-
-                string template = File.ReadAllText(resourceFile);
-                string source = template.Replace("#TYPE#", typeName);
-                File.WriteAllText(
-                    destinationPath,
-                    source,
-                    new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
-                AssetDatabase.ImportAsset(
-                    destinationPath,
-                    ImportAssetOptions.ForceSynchronousImport);
-
-                UnityEngine.Object createdAsset =
-                    AssetDatabase.LoadMainAssetAtPath(destinationPath);
-                ProjectWindowUtil.ShowCreatedAsset(createdAsset);
-            }
-
-            private static string RemoveExtensionsSuffix(string name)
-            {
-                const string suffix = "Extensions";
-                return name.EndsWith(suffix, StringComparison.OrdinalIgnoreCase)
-                    ? name.Substring(0, name.Length - suffix.Length)
-                    : name;
-            }
-
-            private static string SanitizeIdentifier(string name)
-            {
-                StringBuilder result = new();
-                foreach (char character in name)
-                {
-                    if (char.IsLetterOrDigit(character) || character == '_')
-                        result.Append(character);
-                }
-
-                if (result.Length == 0) return "NewType";
-                if (char.IsDigit(result[0])) result.Insert(0, '_');
-                return result.ToString();
-            }
-        }
     }
 }

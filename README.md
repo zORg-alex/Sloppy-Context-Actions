@@ -8,6 +8,7 @@ Only Unity 6.5 and newer has been tested so far. Some features rely on Unity Edi
 
 - Folder actions for creating folders, scripts, materials, and shaders.
 - Script templates for common C# types, jobs, Entities types, assembly definitions, and optional integrations when their packages are installed.
+- Destination-folder namespaces for every generated C# script: `Assets` is omitted, so `Assets/Scripts/Extensions` becomes `Scripts.Extensions`.
 - Context-aware editor scripts and DOTS Baker creation from compatible source scripts.
 - Optional inline custom inspectors and property drawers, disabled by default because they modify runtime source files.
 - Material creation from folders, textures, and shaders.

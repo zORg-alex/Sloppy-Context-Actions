@@ -52,8 +52,8 @@ namespace SloppyContextActions.Editor
 
         private static void Create(ProjectContextItem item, Definition definition)
         {
-            Selection.activeObject = item.Asset;
-            ProjectWindowUtil.CreateScriptAssetFromTemplateFile(
+            ScriptAssetTemplateCreator.Create(
+                item,
                 TemplateRoot + definition.FileName,
                 definition.DefaultName);
         }
