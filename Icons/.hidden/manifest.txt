@@ -1,0 +1,8 @@
+Add-Folder.svg
+Add-Script.svg
+Audio-Play.svg
+Audio-Stop.svg
+Folder.svg
+Material.svg
+Open-Image-Editor.svg
+Shader.svg
