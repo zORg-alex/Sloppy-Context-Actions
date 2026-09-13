@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Added reversible hiding and cached loading for editor-only textures.
+
 ## 0.1.0 — 2026-08-19
 
 - Initial shippable cleanup and rename to Sloppy Context Actions.

@@ -15,12 +15,19 @@ Only Unity 6.5 and newer has been tested so far. Some features rely on Unity Edi
 - Unity's installed shader-template selection from folder and shader contexts.
 - URP 17 RenderGraph templates for fullscreen blits, draw-object passes, and Volume components. The Fullscreen Shader Graph action starts with Screen Position feeding the URP Blit Source sample buffer.
 - Texture opening in configurable external image editors.
+- Reversible editor-texture hiding: original icon sources and meta files can be moved into an Asset Database-ignored `.hidden` folder while the UI keeps loading cached copies.
 - Audio preview play and stop actions.
 - Reveal assets in the system file browser and copy Unity, absolute, or parent paths.
 - Project tree actions plus current-folder actions beside the Project breadcrumb area.
 
 Left-click performs the primary action. Right-click opens the applicable choices. Configure button size and external image editors in **Edit > Preferences > Sloppy Context Actions**.
 Each image editor can independently prefer handing files to an already-running instance; support depends on the editor, with a dedicated Aseprite handoff currently included on Windows.
+
+## Hiding editor textures
+
+Right-click the `Icons` folder and choose **Sloppy Context Actions > Editor Textures > Hide** to remove its textures from Unity's Project window and object selectors. The original files and their `.meta` files are moved into `Icons/.hidden`; they are not deleted. A volatile PNG cache generated from Unity's imported textures lives only under `Icons/.hidden/.cache`, is ignored by Git, and lets `EditorTextureStore.GetTexture("filename.svg")` continue loading SVG and raster icons after Unity stops importing that folder. Use **Show** from the same `Icons` folder to restore the original files and GUIDs.
+
+`EditorTextureStore.cs` is intentionally asset-specific. To reuse it in another asset, copy the script and change its hard-coded texture-folder GUID and menu root. Keeping the folder reference as a GUID means the asset itself can still be moved anywhere under `Assets`.
 
 ## Installation and customization
 

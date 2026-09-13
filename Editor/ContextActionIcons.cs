@@ -1,5 +1,3 @@
-using System;
-using System.IO;
 using UnityEditor;
 using UnityEngine;
 
@@ -7,15 +5,6 @@ namespace SloppyContextActions.Editor
 {
     internal static class ContextActionIcons
     {
-        private static string AddFolderPath => Path("Icons/Add-Folder.svg");
-        private static string OpenInImageEditorPath => Path("Icons/Open-Image-Editor.svg");
-        private static string OpenInExplorerPath => Path("Icons/Folder.svg");
-        private static string AddScriptPath => Path("Icons/Add-Script.svg");
-        private static string MaterialPath => Path("Icons/Material.svg");
-        private static string ShaderPath => Path("Icons/Shader.svg");
-        private static string AudioPlayPath => Path("Icons/Audio-Play.svg");
-        private static string AudioStopPath => Path("Icons/Audio-Stop.svg");
-
         private static Texture2D _addFolder;
         private static Texture2D _openInImageEditor;
         private static Texture2D _openInExplorer;
@@ -32,9 +21,6 @@ namespace SloppyContextActions.Editor
         private static bool _shaderLoaded;
         private static bool _audioPlayLoaded;
         private static bool _audioStopLoaded;
-        private static bool _shaderArtworkChecked;
-        private static bool _shaderHasArtwork;
-
         static ContextActionIcons()
         {
             EditorApplication.projectChanged += ClearCache;
@@ -47,7 +33,7 @@ namespace SloppyContextActions.Editor
                 if (!_addScriptLoaded)
                 {
                     _addScriptLoaded = true;
-                    _addScript = AssetDatabase.LoadAssetAtPath<Texture2D>(AddScriptPath);
+                    _addScript = EditorTextureStore.GetTexture("Add-Script.svg");
                 }
 
                 return _addScript;
@@ -61,7 +47,7 @@ namespace SloppyContextActions.Editor
                 if (!_addFolderLoaded)
                 {
                     _addFolderLoaded = true;
-                    _addFolder = AssetDatabase.LoadAssetAtPath<Texture2D>(AddFolderPath);
+                    _addFolder = EditorTextureStore.GetTexture("Add-Folder.svg");
                 }
 
                 return _addFolder;
@@ -71,79 +57,49 @@ namespace SloppyContextActions.Editor
         public static Texture2D OpenInImageEditor => LoadOnce(
             ref _openInImageEditor,
             ref _openInImageEditorLoaded,
-            OpenInImageEditorPath);
+            "Open-Image-Editor.svg");
 
         public static Texture2D OpenInExplorer => LoadOnce(
             ref _openInExplorer,
             ref _openInExplorerLoaded,
-            OpenInExplorerPath);
+            "Folder.svg");
 
         public static Texture2D Material => LoadOnce(
             ref _material,
             ref _materialLoaded,
-            MaterialPath);
+            "Material.svg");
 
         public static Texture2D Shader
         {
             get
             {
-                Texture2D custom = LoadOnce(ref _shader, ref _shaderLoaded, ShaderPath);
-                if (!_shaderArtworkChecked)
-                {
-                    _shaderArtworkChecked = true;
-                    _shaderHasArtwork = HasSvgArtwork(ShaderPath);
-                }
-
-                if (_shaderHasArtwork) return custom;
-
-                return EditorGUIUtility.IconContent("Shader Icon").image as Texture2D;
+                Texture2D custom = LoadOnce(ref _shader, ref _shaderLoaded, "Shader.svg");
+                return custom != null
+                    ? custom
+                    : EditorGUIUtility.IconContent("Shader Icon").image as Texture2D;
             }
         }
 
         public static Texture2D AudioPlay => LoadOnce(
             ref _audioPlay,
             ref _audioPlayLoaded,
-            AudioPlayPath);
+            "Audio-Play.svg");
 
         public static Texture2D AudioStop => LoadOnce(
             ref _audioStop,
             ref _audioStopLoaded,
-            AudioStopPath);
+            "Audio-Stop.svg");
 
         private static Texture2D LoadOnce(
             ref Texture2D texture,
             ref bool loaded,
-            string path)
+            string fileName)
         {
             if (loaded) return texture;
 
             loaded = true;
-            texture = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+            texture = EditorTextureStore.GetTexture(fileName);
             return texture;
-        }
-
-        private static bool HasSvgArtwork(string path)
-        {
-            if (!File.Exists(path)) return false;
-
-            string svg = File.ReadAllText(path);
-            string[] artworkElements =
-            {
-                "<path", "<circle", "<ellipse", "<rect", "<line", "<polyline",
-                "<polygon", "<text", "<use", "<image"
-            };
-            foreach (string element in artworkElements)
-            {
-                if (svg.IndexOf(element, StringComparison.OrdinalIgnoreCase) >= 0)
-                    return true;
-            }
-
-            return false;
-        }
-
-        private static string Path(string relativePath)
-        {
-            return SloppyContextActionsLocation.GetAssetPath(relativePath);
         }
 
         private static void ClearCache()
@@ -164,8 +120,6 @@ namespace SloppyContextActions.Editor
             _shaderLoaded = false;
             _audioPlayLoaded = false;
             _audioStopLoaded = false;
-            _shaderArtworkChecked = false;
-            _shaderHasArtwork = false;
         }
     }
 }
