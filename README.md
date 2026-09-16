@@ -31,6 +31,14 @@ Right-click the `Icons` folder and choose **Sloppy Context Actions > Editor Text
 
 ## Installation and customization
 
+### External integrations
+
+Other assets can register editor actions through `SloppyContextActions.Editor.AssetContextActions.Register(id, assetType, button, execute, isAvailable, populateMenu, order)`. Use a globally unique id; registering it again replaces the action. `Unregister(id)` removes it. Actions appear on matching non-folder assets in both Project views, including one-column mode. The host handles button layout, size, tint and mouse input.
+
+Register once after domain reload (`InitializeOnLoad` with `EditorApplication.delayCall`). `execute` receives the clicked `UnityEngine.Object`. An optional `Predicate<UnityEngine.Object>` controls visibility; keep it cheap because it runs during drawing. An optional `Action<UnityEngine.Object, GenericMenu>` builds a custom right-click menu. Without it, right-click offers the primary action. Click execution is deferred outside drawing. Availability checks exceeding 250 ms use the existing optimization diagnostic.
+
+For an optional integration, keep its code in the integrating asset's Editor folder and resolve `Type.GetType("SloppyContextActions.Editor.AssetContextActions, SloppyContextActions.Editor", false)` once during registration. If it returns null, skip registration. Invoke the public `Register` method with standard Unity/System delegate types; no assembly reference or scripting define is required. This lets either asset be removed independently. For a required dependency, call the API directly and reference `SloppyContextActions.Editor` from your editor asmdef.
+
 Place the complete `Sloppy Context Actions` folder anywhere under `Assets`. The implementation locates its resources by Unity GUID, so moving the folder does not require source changes. Keep Unity's `.meta` files when copying it. Custom script templates can be added under `Editor/ScriptTemplates`, following Unity's `Menu Name-DefaultFileName.extension.txt` naming convention.
 
 The source is intentionally included. Treat it as project-local tooling: review it, delete actions you do not need, and adapt it to your project's conventions.
